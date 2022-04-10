@@ -13,7 +13,7 @@
     </div>
 <!--    内容-->
     <el-table :data="tableData" border stripe style="width: 100%" >
-      <el-table-column prop="id" label="ID" sortable align="center "/>
+      <el-table-column prop="id" label="学号" width="80" sortable />
       <el-table-column label="头像" width="80" align="center ">
         <template #default="scope">
           <el-image

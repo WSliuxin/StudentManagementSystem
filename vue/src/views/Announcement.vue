@@ -123,13 +123,14 @@ export default {
       this.form = {}
 
       this.$nextTick( () => {
-        //关联弹窗里面的div，new一个editor对象
-        editor = new E('#div1')
-
-        // 配置 server 接口地址
-        editor.config.uploadImgServer = '/upload-img'
-
-        editor.create()
+        if (editor) {
+          editor.destroy()
+        }
+          //关联弹窗里面的div，new一个editor对象
+          editor = new E('#div1')
+          editor.config.uploadImgServer = 'http://localhost:9090/files/editor/upload'
+          editor.config.uploadFileName = 'file'
+          editor.create()
       })
     },
     save(){ //保存
@@ -184,6 +185,7 @@ export default {
         if (!editor) {
           //关联弹窗里面的div，new一个editor对象
           editor = new E('#div1')
+
           editor.create()
         }
         editor.txt.html(row.content)

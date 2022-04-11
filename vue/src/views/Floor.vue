@@ -1,5 +1,5 @@
 <template>
-  <div style="padding: 20px">
+  <div style="padding: 20px 100px 20px 40px;">
     <!--    功能区域-->
     <div style="margin: 10px 0">
       <el-button type="primary" @click="add">新增</el-button>
@@ -17,7 +17,7 @@
       <el-table-column prop="name" label="名称" width="150" />
       <el-table-column prop="synopsis" label="简介" />
       <el-table-column prop="administrators" label="管理员" width="150" />
-      <el-table-column fixed="right" label="操作" width="150">
+      <el-table-column fixed="right" label="操作" width="150" v-if="user.role === 1||user.role === 2">
         <template #default="scope">
           <el-button size="mini" @click="handleEdit(scope)">编辑</el-button>
           <el-popconfirm title="确认删除吗?" @confirm="handleDelete(scope.row.id)">
@@ -83,10 +83,21 @@ export default {
       pageSize: 10,
       total: 0,
       tableData:[],
-      id: 0
+      id: 0,
+      user: {}
     }
   },
   created() {
+    let userStr = sessionStorage.getItem("user") || {}
+    this.user = JSON.parse(userStr)
+
+    //请求服务器，确认当前登录用户的合法信息
+    request.get("/user/"+this.user.id).then( res => {
+      if (res.code === '0') {
+        this.user = res.data
+      }
+    })
+
     this.load()
   },
   methods: {

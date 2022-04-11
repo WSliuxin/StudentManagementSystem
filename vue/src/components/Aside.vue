@@ -5,7 +5,7 @@
         :default-active="path"
         router
         class="el-menu-vertical-demo">
-      <el-sub-menu index="1">
+      <el-sub-menu index="1" v-if="user.role === 1">
         <template #title>
           <span>系统管理</span>
         </template>
@@ -25,14 +25,27 @@
 </template>
 
 <script>
+import request from "@/utils/request";
+
 export default {
   name: "Aside",
   data(){
     return{
+      user: {},
       path: this.$route.path  //默认的高亮设置
     }
   },
   created() {
+    let userStr = sessionStorage.getItem("user") || {}
+    this.user = JSON.parse(userStr)
+
+    //请求服务器，确认当前登录用户的合法信息
+    request.get("/user/"+this.user.id).then( res => {
+      if (res.code === '0') {
+        this.user = res.data
+      }
+    })
+
   }
 }
 </script>

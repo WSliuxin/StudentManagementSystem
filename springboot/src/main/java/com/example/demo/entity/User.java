@@ -17,4 +17,5 @@ public class User {
     private String sex;
     private String address;
     private String cover;
+    private Integer role;
 }

@@ -17,8 +17,8 @@
       <el-menu-item index="/announcement">
         <span>宿舍公告管理</span>
       </el-menu-item>
-      <el-menu-item index="4">
-        <span>选项四</span>
+      <el-menu-item index="/file">
+        <span>文件管理</span>
       </el-menu-item>
     </el-menu>
   </div>

@@ -5,13 +5,14 @@ import lombok.Data;
 
 @Data
 public class UserDTO {
+
     private Integer id;
 
     private String username;
 
     private String nickname;
 
-    private String avatarUrl;
+    private String cover;
 
     private Integer role;;
 

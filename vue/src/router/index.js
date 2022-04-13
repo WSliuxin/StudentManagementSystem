@@ -23,17 +23,17 @@ const routes = [
     children: [
       {
         path: '',
-        name: 'User',
+        name: '用户管理',
         component: () =>import("@/views/User")
       },
       {
         path: '/floor',
-        name: 'Floor',
+        name: '宿舍楼管理',
         component: () =>import("@/views/Floor")
       },
       {
         path: '/person',
-        name: 'Person',
+        name: '宿舍公告管理',
         component: () =>import("@/views/Person")
       },
       {
@@ -41,6 +41,11 @@ const routes = [
         name: 'Announcement',
         component: () =>import("@/views/Announcement")
       },
+      {
+        path: '/file',
+        name: '文件管理',
+        component: () =>import("@/views/File")
+      }
     ]
   },
   {

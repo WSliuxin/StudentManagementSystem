@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.IntStream;
 
 @RestController
 @RequestMapping("/user")
@@ -119,12 +118,20 @@ public class UserController {
      * @param user
      * @return
      */
+    @PutMapping("/individual")
+    public Result<?> upPerson(@RequestBody User user) {
+        System.out.println(user);
+        user.setPassword(userMapper.selectById(user.getId()).getPassword());
+        userMapper.updateById(user);
+        UserDTO userDTO = Information(user);
+        return  Result.success(userDTO);
+    }
+
     @PutMapping
-    public Result<?> updata(@RequestBody User user) {
+    public Result<?> update(@RequestBody User user) {
         userMapper.updateById(user);
         return  Result.success();
     }
-
     /**
      * 批量删除信息接口
      * @param ids
@@ -228,7 +235,11 @@ public class UserController {
     public Result<?> getById(@PathVariable Long id) { return Result.success(userMapper.selectById(id)); }
 
 
-
+    /**
+     * 将User转成UserDTO
+     * @param res
+     * @return
+     */
     private UserDTO Information(User res){
 
         UserDTO userDTO = new UserDTO();
@@ -241,7 +252,7 @@ public class UserController {
         //权限
         userDTO.setRole(res.getRole());
         //头像地址
-        userDTO.setAvatarUrl(res.getCover());
+        userDTO.setCover(res.getCover());
         //Token
         String token = TokenUtils.genToken(res.getId().toString(),res.getPassword());
         userDTO.setToken(token);
@@ -255,4 +266,10 @@ public class UserController {
         return userDTO;
 
     }
+
+    @GetMapping("/username/{id}")
+    public Result<?> getName(@PathVariable Integer id) {
+        return Result.success(userMapper.selectById(id));
+    }
+
 }

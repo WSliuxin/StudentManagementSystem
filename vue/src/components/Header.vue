@@ -5,7 +5,7 @@
     <div style="width: 100px;cursor: pointer;color: var(--el-color-primary);display: flex;align-items: center;">
       <el-dropdown prefix-icon="ArrowDown">
         <span class="el-dropdown-link">
-          {{ user.name }}
+          {{ user.nickName }}
         </span>
         <template #dropdown>
           <el-dropdown-menu>
@@ -24,6 +24,9 @@ import {ArrowDownBold} from "@element-plus/icons-vue";
 import router from "@/router";
 export default {
   name: "Header",
+  props: {
+    user: Object
+  },
   components: {
     ArrowDownBold
   },
@@ -32,9 +35,6 @@ export default {
   },
   data() {
     return {
-      user : {
-        name: ""
-      }
     }
   },
   methods: {
@@ -46,7 +46,8 @@ export default {
       if (localStorage.getItem("user")==null){
         return
       }
-      this.user.name = JSON.parse(localStorage.getItem("user")).nickname
+      //console.log(user)
+      // this.user.name = JSON.parse(localStorage.getItem("user")).nickname
     },
     Information(){
       this.$router.push("/person")

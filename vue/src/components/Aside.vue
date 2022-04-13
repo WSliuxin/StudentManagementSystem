@@ -5,21 +5,23 @@
         :default-active="path"
         router
         class="el-menu-vertical-demo">
+      <el-menu-item index="/home">
+        <span>主页</span>
+      </el-menu-item>
       <el-sub-menu index="1" v-if="user.role === 1">
         <template #title>
           <span>系统管理</span>
         </template>
-          <el-menu-item index="/user">用户管理</el-menu-item>
+        <el-menu-item index="/user">用户管理</el-menu-item>
+        <el-menu-item index="/file">文件管理</el-menu-item>
       </el-sub-menu>
-      <el-menu-item index="/floor">
-        <span>宿舍楼管理</span>
-      </el-menu-item>
-      <el-menu-item index="/announcement">
-        <span>宿舍公告管理</span>
-      </el-menu-item>
-      <el-menu-item index="/file">
-        <span>文件管理</span>
-      </el-menu-item>
+      <el-sub-menu index="2" v-if="user.role === 1">
+        <template #title>
+          <span>宿舍管理</span>
+        </template>
+        <el-menu-item index="/floor">宿舍楼管理</el-menu-item>
+        <el-menu-item index="/announcement">宿舍公告管理</el-menu-item>
+      </el-sub-menu>
     </el-menu>
   </div>
 </template>

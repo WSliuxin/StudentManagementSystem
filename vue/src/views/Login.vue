@@ -70,7 +70,7 @@ export default {
                 message: "登录成功"
               })
               localStorage.setItem("user",JSON.stringify(res.data)) //缓存用户信息
-              this.$router.push("/user") //登录成功之后进行页面的跳转
+              this.$router.push("/home") //登录成功之后进行页面的跳转
             }else {
               this.$message({
                 type: "error",

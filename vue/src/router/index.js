@@ -17,12 +17,17 @@ const routes = [
     ]
   },
   {
-    path: '/user',
+    path: '/home',
     name: 'Layout',
     component: Layout,
     children: [
       {
         path: '',
+        name: '主页',
+        component: () =>import("@/views/Home")
+      },
+      {
+        path: '/user',
         name: '用户管理',
         component: () =>import("@/views/User")
       },

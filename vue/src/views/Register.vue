@@ -1,6 +1,6 @@
 <template>
-  <div style="width: 100%; height: 100vh;background-color: darkslateblue; overflow: hidden">
-    <div style="width: 400px; margin: 100px auto">
+  <div class="wrapper" style="width: 100%; height: 100vh; overflow: hidden">
+    <div style="width: 300px; height: 350px;margin: 150px auto; background-color: #ffffff; padding: 20px; border-radius: 12px">
       <div style="color: #cccccc;font-size: 30px;text-align: center;padding: 30px 0">欢迎注册</div>
       <el-form ref="form" :model="form" :rules="rules" size="normal">
         <el-form-item prop="username">
@@ -38,6 +38,14 @@
   </div>
 </template>
 
+<style>
+.wrapper{
+  background-image: url("../assets/dog.jpg");
+  background-repeat:no-repeat ;
+  background-size:100% 100%;
+  overflow: hidden;
+}
+</style>
 <script>
 
 import { UserFilled,Lock} from "@element-plus/icons";

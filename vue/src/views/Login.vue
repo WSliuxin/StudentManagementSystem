@@ -1,8 +1,8 @@
 <template>
-  <div style="width: 100%; height: 100vh;background-color: darkslateblue; overflow: hidden">
-    <div style="width: 400px; margin: 100px auto">
-      <div style="color: #cccccc;font-size: 30px;text-align: center;padding: 30px 0">欢迎登录</div>
-      <el-form ref="form" :model="form" size="normal" :rules="rules">
+  <div class="wrapper" style="width: 100%; height: 100vh;background-color: darkslateblue; overflow: hidden">
+    <div style="width: 350px;height: 300px; margin: 200px auto;background-color: #ffffff;padding: 20px;border-radius: 12px">
+      <div style="color: #161515;font-size: 30px;text-align: center;padding: 30px 0">登录</div>
+      <el-form style="margin: 0 20px;" ref="form" :model="form" size="normal" :rules="rules">
         <el-form-item prop="username">
           <el-input :prefix-icon="UserFilled" v-model="form.username" >
             <template #prefix>
@@ -21,14 +21,21 @@
             </template>
           </el-input>
         </el-form-item>
-        <el-form-item >
-          <el-button style="width: 100%" type="primary" @click="login">登录</el-button>
-        </el-form-item>
+        <div style="text-align: center">
+          <el-button type="primary" @click="login">登录</el-button>
+          <el-button color="#FF6B58" style="color: #FFFFFF" @click="register">注册</el-button>
+        </div>
       </el-form>
     </div>
   </div>
 </template>
 
+<style>
+.wrapper {
+  background-image: linear-gradient(to bottom right, #fc7e6b, #01ebe5);
+  overflow: hidden;
+}
+</style>
 <script>
 
 import { UserFilled,Lock} from "@element-plus/icons";
@@ -62,7 +69,7 @@ export default {
                 type: "success",
                 message: "登录成功"
               })
-              sessionStorage.setItem("user",JSON.stringify(res.data)) //缓存用户信息
+              localStorage.setItem("user",JSON.stringify(res.data)) //缓存用户信息
               this.$router.push("/user") //登录成功之后进行页面的跳转
             }else {
               this.$message({
@@ -73,6 +80,9 @@ export default {
           })
         }
       })
+    },
+    register() {
+      this.$router.push("/register")
     }
   }
 }

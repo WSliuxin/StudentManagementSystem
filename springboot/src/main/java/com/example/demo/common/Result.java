@@ -40,6 +40,7 @@ public class Result <T> {
         Result result = new Result();
         result.setCode(code);
         result.setMsg(msg);
+        result.setData(null);
         return result;
     }
 }

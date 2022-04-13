@@ -36,15 +36,15 @@ export default {
     }
   },
   created() {
-    let userStr = sessionStorage.getItem("user") || {}
+    let userStr = localStorage.getItem("user") || {}
     this.user = JSON.parse(userStr)
 
     //请求服务器，确认当前登录用户的合法信息
-    request.get("/user/"+this.user.id).then( res => {
-      if (res.code === '0') {
-        this.user = res.data
-      }
-    })
+    // request.get("/user/"+this.user.id).then( res => {
+    //   if (res.code === '0') {
+    //     this.user = res.data
+    //   }
+    // })
 
   }
 }

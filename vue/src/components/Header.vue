@@ -3,7 +3,7 @@
     <div style="width: 200px;padding-left: 30px;font-weight:bold;color:royalblue ">后台管理</div>
     <div style="flex: 1"></div>
     <div style="width: 100px;cursor: pointer;color: var(--el-color-primary);display: flex;align-items: center;">
-      <el-dropdown :prefix-icon="ArrowDown">
+      <el-dropdown prefix-icon="ArrowDown">
         <span class="el-dropdown-link">
           {{ user.name }}
         </span>
@@ -40,13 +40,13 @@ export default {
   methods: {
     quit() {
       this.$router.push("/")
-      sessionStorage.clear()
+      localStorage.clear()
     },
     load() {
-      if (sessionStorage.getItem("user")==null){
+      if (localStorage.getItem("user")==null){
         return
       }
-      this.user.name = JSON.parse(sessionStorage.getItem("user")).nickName
+      this.user.name = JSON.parse(localStorage.getItem("user")).nickname
     },
     Information(){
       this.$router.push("/person")

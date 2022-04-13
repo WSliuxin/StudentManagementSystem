@@ -3,13 +3,15 @@
 <!--    功能区域-->
     <div style="margin: 10px 0">
       <el-button type="primary" @click="add">新增</el-button>
-      <el-popconfirm type="success" title="确认批量删除吗?" cancel-button-text="我再想想" @confirm="delBatch">
+      <el-popconfirm style="margin-left: 5px" type="success" title="确认批量删除吗?" cancel-button-text="我再想想" @confirm="delBatch">
         <template #reference>
           <el-button type="success">批量删除</el-button>
         </template>
       </el-popconfirm>
-      <el-button type="primary">导入</el-button>
-      <el-button type="primary">导出</el-button>
+      <el-upload  action="http://localhost:9090/user/import" :on-success="handleExcelImportSuccess" :on-error="handleExcelImportError" :show-file-list="false" accept="xlsx" style="display: inline-block;margin-left: 12px">
+        <el-button type="primary" >导入</el-button>
+      </el-upload>
+      <el-button type="primary"  style="margin-left: 12px" @click="exp" >导出</el-button>
     </div>
 <!--    搜索区域-->
     <div style="margin: 10px 0">
@@ -70,7 +72,7 @@
       <el-dialog v-model="dialogVisible" title="编辑信息" width="30%">
         <el-form :model="form"  label-width="120px">
           <el-form-item prop="username" label="头像" >
-            <el-upload ref="uploading" action="http://localhost:9090/files/upload" :on-success="fileUploadSuccess">
+            <el-upload ref="uploading" action="http://localhost:9090/files/upload" :show-file-list="false" :on-success="fileUploadSuccess">
               <el-button type="primary">点击上传</el-button>
             </el-upload>
           </el-form-item>
@@ -104,12 +106,12 @@
 </template>
 
 <style>
-
 </style>
 
 <script>
 
 import request from "@/utils/request";
+import axios from "axios";
 
 export default {
   name: 'Home',
@@ -134,8 +136,10 @@ export default {
     this.load()
   },
   methods: {
+    exp() {
+      window.open("http://localhost:9090/user/export")
+    },
     fileUploadSuccess(res) {
-      console.log(res)
       this.form.cover = res.data
     },
     load(){ //页面刷新
@@ -149,8 +153,8 @@ export default {
         }
       }).then(res => {
         console.log(res)
-        this.tableData = res.data.records
-        this.total = res.data.total
+        this.tableData = res.data ? res.data.records : {}
+        this.total = res.data ? res.data.total : 0
       })
     },
     reset (){
@@ -205,13 +209,9 @@ export default {
     handleEdit(row){ //编辑
       this.form = JSON.parse(JSON.stringify(row))
       this.dialogVisible = true
-      this.$nextTick( () => {
-        this.$refs.upload.clearFiles //清除历史文件上传列表
-      })
 
     },
     handleDelete(id){ //删除
-      console.log(id)
       request.delete("/user/"+ id).then(res => {
         if (res.code === '0'){
           this.$message({
@@ -251,6 +251,15 @@ export default {
     },
     handleCurrentChange(pageNum){ //改变当前页码触发
       this.currentPage = pageNum
+      this.load()
+    },
+    handleExcelImportSuccess() {
+      this.$message.success("导入成功")
+      this.load()
+    },
+    handleExcelImportError() {
+      let a=axios.interceptors.response.use()
+      this.$message.error("导入失败")
       this.load()
     }
   }

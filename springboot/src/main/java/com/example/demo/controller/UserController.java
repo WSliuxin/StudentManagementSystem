@@ -1,25 +1,30 @@
 package com.example.demo.controller;
 
-import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.poi.excel.ExcelReader;
 import cn.hutool.poi.excel.ExcelUtil;
 import cn.hutool.poi.excel.ExcelWriter;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.demo.common.Result;
+import com.example.demo.controller.dto.UserDTO;
 import com.example.demo.entity.User;
 import com.example.demo.mapper.UserMapper;
+import com.example.demo.utils.TokenUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
-import javax.jws.soap.SOAPBinding;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
+import java.io.InputStream;
 import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.IntStream;
 
 @RestController
 @RequestMapping("/user")
@@ -37,7 +42,21 @@ public class UserController {
     public void export(HttpServletResponse response) throws Exception{
 
         LambdaQueryWrapper<User> wrapper = Wrappers.<User>lambdaQuery();
+        wrapper.select(User.class,fieldInfo->!fieldInfo.getColumn().equals("cover")&&!fieldInfo.getColumn().equals("role"));
         List<User> list = userMapper.selectList(wrapper);
+        List<Map<String,Object>> list1 = new ArrayList<>();
+        for (int i = 0 ;i < list.size() ;i++ ){
+            Map<String,Object> map = new HashMap<>();
+            map.put("id",list.get(i).getId());
+            map.put("username",list.get(i).getUsername());
+            map.put("password",list.get(i).getPassword());
+            map.put("nickName",list.get(i).getNickName());
+            map.put("age",list.get(i).getAge());
+            map.put("sex",list.get(i).getSex());
+            map.put("address",list.get(i).getAddress());
+            list1.add(map);
+        }
+
         //通过工具类创建writer 写出到磁盘路径
         //在内存操作，写出到浏览器
         ExcelWriter writer = ExcelUtil.getWriter(true);
@@ -51,7 +70,7 @@ public class UserController {
         writer.addHeaderAlias("address","地址");
 
         //一次性写出list内的对象到excel，使用默认样式，强制输出标题
-        writer.write(list,true);
+        writer.write(list1,true);
 
         //设置浏览器响应的格式
         response.setContentType("application/vnh.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8");
@@ -62,6 +81,23 @@ public class UserController {
         writer.flush(out,true);
         out.close();
         writer.close();
+    }
+
+    /**
+     * 导入接口
+     * @param file
+     * @return
+     * @throws Exception
+     */
+    @PostMapping("/import")
+    public Result<?> imp(MultipartFile file) throws Exception {
+        InputStream inputStream = file.getInputStream();
+        ExcelReader reader = ExcelUtil.getReader(inputStream);
+        List<User> list = reader.readAll(User.class);
+        list.forEach(item -> {
+            userMapper.insert(item);
+        });
+        return Result.success();
     }
 
     /**
@@ -149,11 +185,19 @@ public class UserController {
     @PostMapping("/login")
     public Result<?> login(@RequestBody User user) {
         LambdaQueryWrapper<User> wrapper = Wrappers.<User>lambdaQuery();
-        User res = userMapper.selectOne(wrapper.eq(User::getUsername, user.getUsername()).eq(User::getPassword, user.getPassword()));
-        if (res ==null){
-            return Result.error("-1","用户名或密码错误");
+        try {
+            User res = userMapper.selectOne(wrapper.eq(User::getUsername, user.getUsername()).eq(User::getPassword, user.getPassword()));
+            if (res ==null){
+                return Result.error("-1","用户名或密码错误");
+            }
+            UserDTO userDTO = new UserDTO();
+            userDTO = Information(res);
+            return  Result.success(userDTO);
+        } catch (Exception e){
+            return Result.error("-2","系统错误");
         }
-        return  Result.success(res);
+
+
     }
 
     /**
@@ -184,4 +228,31 @@ public class UserController {
     public Result<?> getById(@PathVariable Long id) { return Result.success(userMapper.selectById(id)); }
 
 
+
+    private UserDTO Information(User res){
+
+        UserDTO userDTO = new UserDTO();
+        //ID
+        userDTO.setId(res.getId());
+        //名字
+        userDTO.setUsername(res.getUsername());
+        //昵称
+        userDTO.setNickname(res.getNickName());
+        //权限
+        userDTO.setRole(res.getRole());
+        //头像地址
+        userDTO.setAvatarUrl(res.getCover());
+        //Token
+        String token = TokenUtils.genToken(res.getId().toString(),res.getPassword());
+        userDTO.setToken(token);
+        //性别
+        userDTO.setSex(res.getSex());
+        //年龄
+        userDTO.setAge(res.getAge());
+        //地址
+        userDTO.setAddress(res.getAddress());
+
+        return userDTO;
+
+    }
 }

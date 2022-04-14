@@ -26,11 +26,15 @@ public class CodeGenerator {
                 })
                 .packageConfig(builder -> {
                     builder.parent("com.example.demo") // 设置父包名
-                            .moduleName("") // 设置父包模块名
+                            .moduleName(null) // 设置父包模块名
                             .pathInfo(Collections.singletonMap(OutputFile.mapperXml, "C:\\Users\\Administrator\\Desktop\\springboot+vue\\spring-vue-demo\\springboot\\src\\main\\resources\\mapper\\")); // 设置mapperXml生成路径
                 })
                 .strategyConfig(builder -> {
-                    builder.addInclude("sys_users") // 设置需要生成的表名
+                    builder.entityBuilder().enableLombok();
+                    builder.mapperBuilder().enableMapperAnnotation().build();
+                    builder.controllerBuilder().enableHyphenStyle()  // 开启驼峰转连字符
+                            .enableRestStyle();  // 开启生成@RestController 控制器
+                    builder.addInclude("sys_menu") // 设置需要生成的表名
                             .addTablePrefix("t_", "sys_"); // 设置过滤表前缀
                 })
 //                .templateEngine(new FreemarkerTemplateEngine()) // 使用Freemarker引擎模板，默认的是Velocity引擎模板

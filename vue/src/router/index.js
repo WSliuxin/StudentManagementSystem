@@ -21,36 +21,14 @@ const routes = [
     name: 'Layout',
     component: Layout,
     children: [
-      {
-        path: '',
-        name: '主页',
-        component: () =>import("@/views/Home")
-      },
-      {
-        path: '/user',
-        name: '用户管理',
-        component: () =>import("@/views/User")
-      },
-      {
-        path: '/floor',
-        name: '宿舍楼管理',
-        component: () =>import("@/views/Floor")
-      },
-      {
-        path: '/person',
-        name: '宿舍公告管理',
-        component: () =>import("@/views/Person")
-      },
-      {
-        path: '/announcement',
-        name: 'Announcement',
-        component: () =>import("@/views/Announcement")
-      },
-      {
-        path: '/file',
-        name: '文件管理',
-        component: () =>import("@/views/File")
-      }
+      {path: '', name: '主页', component: () =>import("@/views/Home")},
+      {path: '/role', name: '角色管理', component: () =>import("@/views/Role")},
+      {path: '/menu', name: '菜单管理', component: () =>import("@/views/Menu")},
+      {path: '/user', name: '用户管理', component: () =>import("@/views/User")},
+      {path: '/floor', name: '宿舍楼管理', component: () =>import("@/views/Floor")},
+      {path: '/person', name: '宿舍公告管理', component: () =>import("@/views/Person")},
+      {path: '/announcement', name: 'Announcement', component: () =>import("@/views/Announcement")},
+      {path: '/file', name: '文件管理', component: () =>import("@/views/File")}
     ]
   },
   {

@@ -126,6 +126,11 @@ public class UserController {
         return  Result.success(userDTO);
     }
 
+    /**
+     * 更新接口
+     * @param user
+     * @return
+     */
     @PutMapping
     public Result<?> update(@RequestBody User user) {
         userMapper.updateById(user);

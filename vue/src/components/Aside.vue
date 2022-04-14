@@ -13,6 +13,8 @@
           <span>系统管理</span>
         </template>
         <el-menu-item index="/user">用户管理</el-menu-item>
+        <el-menu-item index="/role">角色管理</el-menu-item>
+        <el-menu-item index="/menu">菜单管理</el-menu-item>
         <el-menu-item index="/file">文件管理</el-menu-item>
       </el-sub-menu>
       <el-sub-menu index="2" v-if="user.role === 1">

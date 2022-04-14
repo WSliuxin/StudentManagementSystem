@@ -55,7 +55,6 @@ public class UserController {
             map.put("address",list.get(i).getAddress());
             list1.add(map);
         }
-
         //通过工具类创建writer 写出到磁盘路径
         //在内存操作，写出到浏览器
         ExcelWriter writer = ExcelUtil.getWriter(true);

@@ -62,6 +62,7 @@ export default {
             type: "success",
             message: "保存成功"
           })
+          localStorage.setItem("user",JSON.stringify(res))
           this.form=res.data
           this.$emit("refreshUser")
         }else {

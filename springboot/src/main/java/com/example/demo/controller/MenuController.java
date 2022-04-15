@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import com.example.demo.common.Result;
 import java.util.List;
+import java.util.stream.Collectors;
+
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 
 
@@ -33,8 +35,9 @@ public class MenuController {
 
     @PostMapping
     public Result<?> save(@RequestBody Menu menu) {
+        System.out.println(menu);
         // 新增或者更新
-        menuService.saveOrUpdate(menu);
+        menuService.save(menu);
         return  Result.success();
     }
 
@@ -74,6 +77,22 @@ public class MenuController {
         queryWrapper.like("name",name);
         queryWrapper.orderByDesc("id");
         return menuService.page(new Page<>(pageNum, pageSize),queryWrapper);
+    }
+
+    @GetMapping
+    public Result<?> findAll (@RequestParam(defaultValue = "") String name) {
+        QueryWrapper<Menu> queryWrapper = new QueryWrapper<>();
+        queryWrapper.like("name",name);
+        //查询所有
+        List<Menu> list = menuService.list(queryWrapper);
+        //找出pid为null的一级菜单
+        List<Menu> parentNode = list.stream().filter(menu -> menu.getPid() == null).collect(Collectors.toList());
+        //找出一级菜单的子菜单
+        for (Menu menu : parentNode) {
+            //筛选所有数据中pid=父级id的数据就是二级菜单
+            menu.setChildren(list.stream().filter(m -> menu.getId().equals(m.getPid())).collect(Collectors.toList()));
+        }
+        return Result.success(parentNode);
     }
 
 }

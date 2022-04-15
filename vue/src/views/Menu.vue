@@ -2,7 +2,7 @@
   <div style="padding: 20px;min-height: calc(100vh - 50px)">
 <!--    功能区域-->
     <div style="margin: 10px 0">
-      <el-button type="primary" @click="add">新增</el-button>
+      <el-button type="primary" @click="add()">新增</el-button>
       <el-popconfirm style="margin-left: 5px" type="success" title="确认批量删除吗?" cancel-button-text="我再想想" @confirm="delBatch">
         <template #reference>
           <el-button type="success">批量删除</el-button>
@@ -22,16 +22,17 @@
       <el-button type="warning" style="margin-left: 5px" @click="reset">清空</el-button>
     </div>
 <!--    内容-->
-    <el-table :data="tableData" border stripe style="width: 100%" @selection-change="handleSelectionChange" >
+    <el-table :data="tableData" border stripe style="width: 100%"
+              row-key="id" default-expand-all @selection-change="handleSelectionChange" >
       <el-table-column type="selection" width="55" align="center"></el-table-column>
-      <el-table-column prop="id" label="ID" width="80" style="width: 80px;" sortable />
       <el-table-column prop="name" label="名称"  align="center "/>
       <el-table-column prop="path" label="路径" align="center "/>
       <el-table-column prop="icon" label="图标" align="center "/>
       <el-table-column prop="description" label="描述" align="center "/>
-      <el-table-column align="center " width="150" fixed="right" label="操作">
+      <el-table-column align="center" width="300" fixed="right" label="操作">
         <template #default="scope">
-          <el-button size="mini" @click="handleEdit(scope.row)">编辑</el-button>
+          <el-button size="mini" type="primary" @click="add(scope.row.id)" v-if="!scope.row.pid&&!scope.row.path">新增子菜单</el-button>
+          <el-button size="mini" type="success" @click="handleEdit(scope.row)">编辑</el-button>
           <el-popconfirm title="确认删除吗?" @confirm="handleDelete(scope.row.id)" cancel-button-text="我再想想">
             <template #reference>
               <el-button size="mini" type="danger">删除</el-button>
@@ -40,18 +41,8 @@
         </template>
       </el-table-column>
     </el-table>
-<!--    分页-->
     <div style="margin: 10px 0">
-      <el-pagination
-          v-model:currentPage="currentPage"
-          :page-sizes="[5, 10, 20]"
-          :page-size="pageSize"
-          layout="total, sizes, prev, pager, next, jumper"
-          :total="total"
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
-      />
-
+      <!--      对话框-->
       <el-dialog v-model="dialogVisible" title="菜单信息" width="30%">
         <el-form :model="form"  label-width="120px">
           <el-form-item label="名称" >
@@ -108,25 +99,26 @@ export default {
   },
   methods: {
     load(){ //页面刷新
-      request.get("/menu/page",{
+      request.get("/menu",{
         params: {
-          pageNum: this.currentPage,
-          pageSize: this.pageSize,
           name: this.name
         }
       }).then(res => {
         console.log(res)
-        this.tableData = res ? res.records : {}
-        this.total = res ? res.total : 0
+        this.tableData = res.data
       })
     },
     reset (){
       this.name = ""
       this.load()
     },
-    add(){ //新增弹出添加框
+    add(pid){ //新增弹出添加框
       this.dialogVisible = true
       this.form = {}
+      console.log(pid)
+      if (pid) {
+        this.form.pid = pid
+      }
     },
     handleSelectionChange(val){
       this.multipleTableRef = val
@@ -149,7 +141,7 @@ export default {
         this.load()//刷新表格
         this.dialogVisible = false
       }else { //新增
-        console.log(this.form)
+        console.log(this.form.pid)
         request.post( "/menu",this.form).then(res => {
           console.log(res.code)
           if (res.code === '0'){
@@ -214,6 +206,9 @@ export default {
     handleCurrentChange(pageNum){ //改变当前页码触发
       this.currentPage = pageNum
       this.load()
+    },
+    addChildren() {
+
     },
   }
 }

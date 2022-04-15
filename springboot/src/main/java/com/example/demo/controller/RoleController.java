@@ -72,7 +72,6 @@ public class RoleController {
         // 分页查询
         QueryWrapper<Role> queryWrapper = new QueryWrapper<>();
         queryWrapper.like("name",name);
-        queryWrapper.orderByDesc("id");
         return roleService.page(new Page<>(pageNum, pageSize),queryWrapper);
     }
 

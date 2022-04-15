@@ -70,10 +70,12 @@
 
       <el-dialog v-model="MenuDialogVis" title="菜单分配" width="30%">
         <el-tree
+            :data="menuData"
             :props="props"
-            :load="loadNode"
-            lazy
             show-checkbox
+            node-key="id"
+            :default-expanded-keys="[1]"
+            :default-checked-keys="[6]"
             @check-change="handleCheckChange"
         />
         <template #footer>
@@ -110,7 +112,11 @@ export default {
       total: 0,
       tableData:[],
       row: '/0',
-      multipleTableRef: []
+      multipleTableRef: [],
+      menuData: [],
+      props: {
+        label: 'name'
+      }
     }
   },
   created() {
@@ -227,6 +233,14 @@ export default {
     },
     selectMenu(roleId) {
       this.MenuDialogVis = true
+
+      //请求菜单数据
+      request.get("/menu").then(res => {
+        this.menuData = res.data
+      })
+    },
+    handleCheckChange(data, checked, indeterminate) {
+      console.log(data, checked, indeterminate)
     }
   }
 }

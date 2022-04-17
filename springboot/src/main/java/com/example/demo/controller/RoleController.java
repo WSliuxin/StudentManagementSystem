@@ -30,6 +30,10 @@ public class RoleController {
     @Resource
     private IRoleService roleService;
 
+    @GetMapping
+    public Result findAll() {
+        return Result.success(roleService.list());
+    }
 
     @PostMapping
     public Result<?> save(@RequestBody Role role) {
@@ -75,5 +79,21 @@ public class RoleController {
         return roleService.page(new Page<>(pageNum, pageSize),queryWrapper);
     }
 
+    /**
+     * 绑定角色和菜单的关系
+     * @param roleId
+     * @param menuIds
+     * @return
+     */
+    @PostMapping("/roleMenu/{roleId}")
+    public Result<?> roleMenu(@PathVariable Integer roleId, @RequestBody List<Integer> menuIds) {
+        roleService.setRoleMenu(roleId,menuIds);
+        return Result.success();
+    }
+
+    @GetMapping("/roleMenu/{roleId}")
+    public Result<?> getRoleMenu(@PathVariable Integer roleId) {
+        return Result.success(roleService.getRoleMenu(roleId));
+    }
 }
 

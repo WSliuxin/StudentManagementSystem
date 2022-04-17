@@ -1,5 +1,5 @@
 <template>
-  <div style="padding: 0 20px">
+  <div style="padding: 0 20px;margin-top: 20px">
     <el-row :gutter='20' style="margin-bottom: 60px">
       <el-col :span="6">
         <el-card style="color:#409eff;">
@@ -53,6 +53,7 @@ export default {
   },
   mounted() { //页面元素渲染后在触发
 
+    console.log("111111111111111111111")
     //饼图
     let pieoption = {
       title: {

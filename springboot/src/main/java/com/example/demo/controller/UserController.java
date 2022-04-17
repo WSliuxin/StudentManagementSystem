@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.poi.excel.ExcelReader;
 import cn.hutool.poi.excel.ExcelUtil;
@@ -9,8 +10,12 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.demo.common.Result;
 import com.example.demo.controller.dto.UserDTO;
+import com.example.demo.entity.Menu;
 import com.example.demo.entity.User;
+import com.example.demo.mapper.RoleMapper;
+import com.example.demo.mapper.RoleMenuMapper;
 import com.example.demo.mapper.UserMapper;
+import com.example.demo.service.IMenuService;
 import com.example.demo.utils.TokenUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -32,6 +37,14 @@ public class UserController {
     @Resource
     UserMapper userMapper;
 
+    @Resource
+    RoleMapper roleMapper;
+
+    @Resource
+    private IMenuService menuService;
+
+    @Resource
+    RoleMenuMapper roleMenuMapper;
     /**
      * 导出接口
      * @param response
@@ -201,7 +214,7 @@ public class UserController {
             if (res ==null){
                 return Result.error("-1","用户名或密码错误");
             }
-            UserDTO userDTO = new UserDTO();
+            UserDTO userDTO;
             userDTO = Information(res);
             return  Result.success(userDTO);
         } catch (Exception e){
@@ -247,28 +260,20 @@ public class UserController {
     private UserDTO Information(User res){
 
         UserDTO userDTO = new UserDTO();
-        //ID
-        userDTO.setId(res.getId());
-        //名字
-        userDTO.setUsername(res.getUsername());
-        //昵称
-        userDTO.setNickname(res.getNickName());
-        //权限
-        userDTO.setRole(res.getRole());
-        //头像地址
-        userDTO.setCover(res.getCover());
+
+        BeanUtil.copyProperties(res, userDTO, true);
+
         //Token
         String token = TokenUtils.genToken(res.getId().toString(),res.getPassword());
         userDTO.setToken(token);
-        //性别
-        userDTO.setSex(res.getSex());
-        //年龄
-        userDTO.setAge(res.getAge());
-        //地址
-        userDTO.setAddress(res.getAddress());
+
+        String role = res.getRole();
+
+        //设置用户菜单列表
+        List<Menu> roleMenus = getRoleMenu(role);
+        userDTO.setMenus(roleMenus);
 
         return userDTO;
-
     }
 
     @GetMapping("/username/{id}")
@@ -276,4 +281,31 @@ public class UserController {
         return Result.success(userMapper.selectById(id));
     }
 
+    /**
+     * 获取当前角色的菜单项
+     * @param role
+     * @return
+     */
+    private List<Menu> getRoleMenu(String role) {
+        Integer roleId = roleMapper.selectByKey(role);
+        //当前角色的所有菜单id集合
+        List<Integer> menuIds = roleMenuMapper.selectByRoleId(roleId);
+        //查出系统所有的菜单
+        List<Menu> menus = menuService.findMenu("");
+        //最后筛选完成后的list
+        List<Menu> roleMenus = new ArrayList<>();
+
+        //筛选当前用户角色菜单
+        for (Menu menu : menus) {
+            if (menuIds.contains(menu.getId())) {
+                roleMenus.add(menu);
+            }
+            List<Menu> children = menu.getChildren();
+
+            // removeIf() 移除 children 里面不在 menuIds集合中的 元素
+            children.removeIf(child -> !menuIds.contains(child.getId()));
+        }
+
+        return roleMenus;
+    }
 }

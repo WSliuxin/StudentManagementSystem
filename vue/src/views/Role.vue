@@ -26,6 +26,7 @@
       <el-table-column type="selection" width="55" align="center"></el-table-column>
       <el-table-column prop="id" label="ID" width="80" style="width: 80px;" sortable />
       <el-table-column prop="name" label="名称"  align="center "/>
+      <el-table-column prop="key" label="唯一标识"  align="center "/>
       <el-table-column prop="description" label="描述" align="center "/>
       <el-table-column align="center " fixed="right" label="操作">
         <template #default="scope">
@@ -56,6 +57,9 @@
           <el-form-item label="名称" >
           <el-input v-model="form.name" style="width: 80%"/>
           </el-form-item>
+          <el-form-item label="唯一标识" >
+            <el-input v-model="form.key" style="width: 80%"/>
+          </el-form-item>
           <el-form-item label="描述" >
             <el-input v-model="form.description" style="width: 80%"/>
           </el-form-item>
@@ -74,14 +78,19 @@
             :props="props"
             show-checkbox
             node-key="id"
-            :default-expanded-keys="[1]"
-            :default-checked-keys="[6]"
-            @check-change="handleCheckChange"
-        />
+            ref="tree"
+            :default-expanded-keys="expends"
+            :default-checked-keys="checks">
+          <template #default="{ node, data }">
+        <span class="custom-tree-node">
+           <component :is="data.icon" style="width: 25px; height:25px;padding-top: 8px" />{{ data.name }}
+        </span>
+          </template>
+        </el-tree>
         <template #footer>
           <span class="dialog-footer">
             <el-button @click="MenuDialogVis = false">取 消</el-button>
-            <el-button type="primary" @click="save">确 认</el-button>
+            <el-button type="primary" @click="saveRoleMenu">确 认</el-button>
           </span>
         </template>
       </el-dialog>
@@ -96,10 +105,12 @@
 
 import request from "@/utils/request";
 import axios from "axios";
+import {Menu as IconMenu} from "@element-plus/icons-vue";
 
 export default {
   name: 'Role',
   components: {
+    IconMenu
   },
   data(){
     return {
@@ -116,7 +127,10 @@ export default {
       menuData: [],
       props: {
         label: 'name'
-      }
+      },
+      expends: [],
+      checks: [],
+      roleId: 0
     }
   },
   created() {
@@ -233,14 +247,35 @@ export default {
     },
     selectMenu(roleId) {
       this.MenuDialogVis = true
-
+      this.roleId = roleId
       //请求菜单数据
       request.get("/menu").then(res => {
         this.menuData = res.data
+
+        //把后台返回的菜单数据处理成 id数组
+        this.expends = this.menuData.map(v => v.id)
+      })
+
+      //
+      request.get("/role/roleMenu/" + roleId).then(res => {
+        this.checks = res.data
       })
     },
-    handleCheckChange(data, checked, indeterminate) {
-      console.log(data, checked, indeterminate)
+    saveRoleMenu(){
+      request.post("/role/roleMenu/"+this.roleId,this.$refs.tree.getCheckedKeys()).then(res => {
+        if (res.code === '0'){
+          this.$message({
+            type: "success",
+            message: "分配成功"
+          })
+        }else {
+          this.$message({
+            type: "error",
+            message: res.msg
+          })
+        }
+        this.MenuDialogVis = false
+      })
     }
   }
 }

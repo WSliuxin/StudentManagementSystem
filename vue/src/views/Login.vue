@@ -40,6 +40,7 @@
 
 import { UserFilled,Lock} from "@element-plus/icons";
 import request from "@/utils/request";
+import {setRoutes} from "@/router";
 export default {
   name: "Login",
   components: {
@@ -70,7 +71,11 @@ export default {
                 message: "登录成功"
               })
               localStorage.setItem("user",JSON.stringify(res.data)) //缓存用户信息
-              this.$router.push("/home") //登录成功之后进行页面的跳转
+              localStorage.setItem("menus",JSON.stringify(res.data.menus)) //缓存用户信息
+              this.$router.push("/") //登录成功之后进行页面的跳转
+
+              //动态设置当前用户的路由
+              setRoutes()
             }else {
               this.$message({
                 type: "error",

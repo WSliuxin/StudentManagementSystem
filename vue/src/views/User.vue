@@ -25,27 +25,12 @@
     <el-table :data="tableData" border stripe style="width: 100%" @selection-change="handleSelectionChange" >
       <el-table-column type="selection" width="55" align="center"></el-table-column>
       <el-table-column prop="id" label="学号" width="80" sortable />
-      <el-table-column label="头像" width="80" align="center ">
-        <template #default="scope">
-          <el-image
-              style="width: 80%; height: 80%"
-              :src="scope.row.cover"
-              :preview-src-list="[scope.row.cover]"
-              preview-teleported="true"/>
-        </template>
-      </el-table-column>
       <el-table-column prop="username" label="姓名"  align="center "/>
       <el-table-column prop="nickName" label="昵称" align="center "/>
+      <el-table-column prop="role" label="角色" align="center "/>
       <el-table-column prop="age" label="年龄"  align="center "/>
       <el-table-column prop="sex" label="性别" align="center "/>
       <el-table-column prop="address" label="地址" align="center "/>
-      <el-table-column label="角色" align="center ">
-        <template #default="scope">
-          <span v-if="scope.row.role === 1">系统管理员</span>
-          <span v-if="scope.row.role === 2">宿舍管理员</span>
-          <span v-if="scope.row.role === 3">学生</span>
-        </template>
-      </el-table-column>
       <el-table-column align="center " width="150" fixed="right" label="操作">
         <template #default="scope">
           <el-button size="mini" @click="handleEdit(scope.row)">编辑</el-button>
@@ -69,15 +54,16 @@
           @current-change="handleCurrentChange"
       />
 
-      <el-dialog v-model="dialogVisible" title="编辑信息" width="30%">
+      <el-dialog v-model="dialogVisible" title="用户信息" width="30%">
         <el-form :model="form"  label-width="120px">
-          <el-form-item prop="username" label="头像" >
-            <el-upload ref="uploading" action="http://localhost:9090/files/upload" :show-file-list="false" :on-success="fileUploadSuccess">
-              <el-button type="primary">点击上传</el-button>
-            </el-upload>
-          </el-form-item>
           <el-form-item label="姓名" >
           <el-input v-model="form.username" style="width: 80%"/>
+          </el-form-item>
+          <el-form-item label="角色" >
+            <el-select clearable v-model="form.role" placeholder="请选择角色" style="width: 80%;">
+              <el-option v-for="item in roles" :key="item.name" :label="item.name" :value="item.key">
+              </el-option>
+            </el-select>
           </el-form-item>
           <el-form-item label="昵称" >
             <el-input v-model="form.nickName" style="width: 80%"/>
@@ -129,7 +115,8 @@ export default {
       total: 0,
       tableData:[],
       row: '/0',
-      multipleTableRef: []
+      multipleTableRef: [],
+      roles: []
     }
   },
   created() {
@@ -155,6 +142,10 @@ export default {
         console.log(res)
         this.tableData = res.data ? res.data.records : {}
         this.total = res.data ? res.data.total : 0
+      })
+
+      request.get("/role").then(res => {
+          this.roles = res.data
       })
     },
     reset (){

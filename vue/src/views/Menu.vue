@@ -27,7 +27,12 @@
       <el-table-column type="selection" width="55" align="center"></el-table-column>
       <el-table-column prop="name" label="名称"  align="center "/>
       <el-table-column prop="path" label="路径" align="center "/>
-      <el-table-column prop="icon" label="图标" align="center "/>
+      <el-table-column prop="pagePath" label="页面路径" align="center "/>
+      <el-table-column label="图标" align="center ">
+        <template #default="scope">
+          <component :is="scope.row.icon" style="width: 25px; height:25px;padding-top: 8px" />
+        </template>
+      </el-table-column>
       <el-table-column prop="description" label="描述" align="center "/>
       <el-table-column align="center" width="300" fixed="right" label="操作">
         <template #default="scope">
@@ -41,18 +46,26 @@
         </template>
       </el-table-column>
     </el-table>
-    <div style="margin: 10px 0">
+    <div style="margin: 10px 0" >
       <!--      对话框-->
       <el-dialog v-model="dialogVisible" title="菜单信息" width="30%">
         <el-form :model="form"  label-width="120px">
           <el-form-item label="名称" >
           <el-input v-model="form.name" style="width: 80%"/>
           </el-form-item>
-          <el-form-item label="路径" >
+          <el-form-item label="路径">
             <el-input v-model="form.path" style="width: 80%"/>
           </el-form-item>
+          <el-form-item label="页面路径">
+            <el-input v-model="form.pagePath" style="width: 80%"/>
+          </el-form-item>
           <el-form-item label="图标" >
-            <el-input v-model="form.icon" style="width: 80%"/>
+            <el-select clearable v-model="form.icon" placeholder="请选择">
+              <el-option v-for="item in options" :key="item.name" :label="item.name" :value="item.value" >
+                <component :is="item.value" style="width: 25px; height:25px;padding-top: 8px" />
+                {{item.name}}
+              </el-option>
+            </el-select>
           </el-form-item>
           <el-form-item label="描述" >
             <el-input v-model="form.description" style="width: 80%"/>
@@ -71,15 +84,15 @@
 
 <style>
 </style>
-
 <script>
 
 import request from "@/utils/request";
-import axios from "axios";
+import {Menu as IconMenu} from "@element-plus/icons-vue";
 
 export default {
   name: 'Menu',
   components: {
+    IconMenu,
   },
   data(){
     return {
@@ -91,7 +104,8 @@ export default {
       total: 0,
       tableData:[],
       row: '/0',
-      multipleTableRef: []
+      multipleTableRef: [],
+      options: [],
     }
   },
   created() {
@@ -164,6 +178,11 @@ export default {
       this.form = JSON.parse(JSON.stringify(row))
       this.dialogVisible = true
 
+      //请求图标的数据
+      request.get("/menu/icons").then(res => {
+        console.log(res)
+        this.options = res.data
+      })
     },
     handleDelete(id){ //删除
       request.delete("/menu/"+ id).then(res => {
@@ -206,9 +225,6 @@ export default {
     handleCurrentChange(pageNum){ //改变当前页码触发
       this.currentPage = pageNum
       this.load()
-    },
-    addChildren() {
-
     },
   }
 }

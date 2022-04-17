@@ -7,7 +7,7 @@
       <!--      侧边栏-->
       <Aside />
       <!--      内容区域-->
-      <router-view style="flex: 1" @refreshUser="getUser"/>
+      <router-view style="flex: 1" @refreshUser="getUser" :user="user"/>
     </div>
   </div>
 </template>

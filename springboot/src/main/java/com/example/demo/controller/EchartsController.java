@@ -43,13 +43,13 @@ public class EchartsController {
         int q4 = 0; //  未定义用户
 
         for (User user : list) {
-            Integer role = user.getRole();
-            switch (role) {
-                case 1 : q1++; break;
-                case 2 : q2++; break;
-                case 3 : q3++; break;
-                default: q4++; break;
-            }
+            String role = user.getRole();
+//            switch (role) {
+//                case "1" : q1++; break;
+//                case "2" : q2++; break;
+//                case "3" : q3++; break;
+//                default: q4++; break;
+//            }
         }
 
         return Result.success(CollUtil.newArrayList(q1,q2,q3,q4));

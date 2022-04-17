@@ -17,7 +17,7 @@
       <el-table-column prop="name" label="名称" width="150" />
       <el-table-column prop="synopsis" label="简介" />
       <el-table-column prop="administrators" label="管理员" width="150" />
-      <el-table-column fixed="right" label="操作" width="150" v-if="user.role === 1||user.role === 2">
+      <el-table-column fixed="right" label="操作" width="150">
         <template #default="scope">
           <el-button size="mini" @click="handleEdit(scope)">编辑</el-button>
           <el-popconfirm title="确认删除吗?" @confirm="handleDelete(scope.row.id)">

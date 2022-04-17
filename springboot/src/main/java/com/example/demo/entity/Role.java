@@ -1,6 +1,7 @@
 package com.example.demo.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
@@ -19,7 +20,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-  @TableName("sys_role")
+@TableName("sys_role")
 @ApiModel(value = "Role对象", description = "")
 public class Role implements Serializable {
 
@@ -34,6 +35,10 @@ public class Role implements Serializable {
 
     @ApiModelProperty("描述")
     private String description;
+
+    @ApiModelProperty("唯一标识")
+    @TableField("`key`")
+    private String key;
 
 
 }

@@ -1,42 +1,47 @@
 <template>
   <div>
     <el-menu
-        style="width: 200px;width: 100%;min-height: calc(100vh - 50px)"
+        style="width: 200px;min-height: calc(100vh - 50px)"
         :default-active="path"
+        :default-openeds="opens"
         router
         class="el-menu-vertical-demo">
-      <el-menu-item index="/home">
-        <span>主页</span>
-      </el-menu-item>
-      <el-sub-menu index="1" v-if="user.role === 1">
-        <template #title>
-          <span>系统管理</span>
-        </template>
-        <el-menu-item index="/user">用户管理</el-menu-item>
-        <el-menu-item index="/role">角色管理</el-menu-item>
-        <el-menu-item index="/menu">菜单管理</el-menu-item>
-        <el-menu-item index="/file">文件管理</el-menu-item>
-      </el-sub-menu>
-      <el-sub-menu index="2" v-if="user.role === 1">
-        <template #title>
-          <span>宿舍管理</span>
-        </template>
-        <el-menu-item index="/floor">宿舍楼管理</el-menu-item>
-        <el-menu-item index="/announcement">宿舍公告管理</el-menu-item>
-      </el-sub-menu>
+        <div v-for="item in menus" :key="item.id">
+          <div v-if="item.path">
+            <el-menu-item :index="item.path">
+              <span><component :is="item.icon" style="width: 56px; height:56px;padding:15px" />{{ item.name }}</span>
+            </el-menu-item>
+          </div>
+
+          <div v-else>
+            <el-sub-menu :index="item.id + '' ">
+              <template #title>
+                <span><component :is="item.icon" style="width: 56px; height:56px;padding:15px" />{{ item.name }}</span>
+              </template>
+              <div v-for="subItem in item.children" :key="subItem.id">
+                <el-menu-item :index="subItem.path">
+                  <span><component :is="subItem.icon" style="width: 56px; height:56px;padding:15px" />{{ subItem.name }}</span>
+                </el-menu-item>
+              </div>
+            </el-sub-menu>
+          </div>
+        </div>
     </el-menu>
   </div>
 </template>
 
 <script>
 import request from "@/utils/request";
-
+import {Menu as IconMenu,} from '@element-plus/icons-vue'
 export default {
   name: "Aside",
+  components: {IconMenu},
   data(){
     return{
       user: {},
-      path: this.$route.path  //默认的高亮设置
+      path: this.$route.path,  //默认的高亮设置
+      menus: localStorage.getItem("menus") ? JSON.parse(localStorage.getItem("menus")) : [],
+      opens: localStorage.getItem("menus") ? JSON.parse(localStorage.getItem("menus")).map(v => v.id + '') : [],
     }
   },
   created() {

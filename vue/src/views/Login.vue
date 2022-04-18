@@ -40,7 +40,7 @@
 
 import { UserFilled,Lock} from "@element-plus/icons";
 import request from "@/utils/request";
-import {setRoutes} from "@/router";
+import {resetRouter, setRoutes} from "@/router";
 export default {
   name: "Login",
   components: {

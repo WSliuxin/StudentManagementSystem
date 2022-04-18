@@ -15,7 +15,7 @@
           <el-input v-model="form.username" style="width: 40%;"></el-input>
         </el-form-item>
         <el-form-item label="昵称" style="margin-left: 10px">
-          <el-input v-model="form.nickname" style="width: 40%;"></el-input>
+          <el-input v-model="form.nickName" style="width: 40%;"></el-input>
         </el-form-item>
         <el-form-item label="年龄" style="margin-left: 10px">
           <el-input v-model="form.age" style="width: 30%;"></el-input>

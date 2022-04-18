@@ -133,6 +133,12 @@ export default {
       if (pid) {
         this.form.pid = pid
       }
+
+      //请求图标的数据
+      request.get("/menu/icons").then(res => {
+        console.log(res)
+        this.options = res.data
+      })
     },
     handleSelectionChange(val){
       this.multipleTableRef = val

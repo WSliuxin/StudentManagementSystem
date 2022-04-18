@@ -21,7 +21,7 @@
 
 <script>
 import {ArrowDownBold} from "@element-plus/icons-vue";
-import router from "@/router";
+import router, {resetRouter} from "@/router";
 export default {
   name: "Header",
   props: {
@@ -39,8 +39,10 @@ export default {
   },
   methods: {
     quit() {
-      this.$router.push("/login")
-      localStorage.clear()
+      localStorage.removeItem("user")
+      localStorage.removeItem("menus")
+      router.push('/login')
+      resetRouter()
     },
     load() {
       if (localStorage.getItem("user")==null){

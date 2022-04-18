@@ -106,7 +106,7 @@
 import request from "@/utils/request";
 import axios from "axios";
 import {Menu as IconMenu} from "@element-plus/icons-vue";
-import router from "@/router";
+import router, {resetRouter} from "@/router";
 
 export default {
   name: 'Role',
@@ -267,7 +267,9 @@ export default {
           const ids = r.data
           ids.forEach(id => {
             if (!this.checks.includes(id)) {
-              this.$refs.tree.setChecked(id,false)
+              this.$nextTick(() => {
+                this.$refs.tree.setChecked(id,false)
+              })
             }
           })
         })
@@ -285,6 +287,7 @@ export default {
             localStorage.removeItem("user")
             localStorage.removeItem("menus")
             router.push('/login')
+            resetRouter()
           }
         }else {
           this.$message({

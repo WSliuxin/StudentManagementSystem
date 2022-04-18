@@ -30,7 +30,7 @@
       <el-table-column prop="description" label="描述" align="center "/>
       <el-table-column align="center " fixed="right" label="操作">
         <template #default="scope">
-          <el-button type="info" size="mini" @click="selectMenu(scope.row.id)">分配菜单</el-button>
+          <el-button type="info" size="mini" @click="selectMenu(scope.row)">分配菜单</el-button>
           <el-button size="mini" @click="handleEdit(scope.row)">编辑</el-button>
           <el-popconfirm title="确认删除吗?" @confirm="handleDelete(scope.row.id)" cancel-button-text="我再想想">
             <template #reference>
@@ -106,6 +106,7 @@
 import request from "@/utils/request";
 import axios from "axios";
 import {Menu as IconMenu} from "@element-plus/icons-vue";
+import router from "@/router";
 
 export default {
   name: 'Role',
@@ -130,7 +131,8 @@ export default {
       },
       expends: [],
       checks: [],
-      roleId: 0
+      roleId: 0,
+      roleLKey: '',
     }
   },
   created() {
@@ -245,9 +247,10 @@ export default {
       this.currentPage = pageNum
       this.load()
     },
-    selectMenu(roleId) {
-      this.MenuDialogVis = true
-      this.roleId = roleId
+    selectMenu(role) {
+
+      this.roleId = role.id
+      this.roleLKey = role.key
       //请求菜单数据
       request.get("/menu").then(res => {
         this.menuData = res.data
@@ -257,8 +260,18 @@ export default {
       })
 
       //
-      request.get("/role/roleMenu/" + roleId).then(res => {
+      request.get("/role/roleMenu/" + this.roleId).then(res => {
         this.checks = res.data
+
+        request.get("/menu/ids").then(r => {
+          const ids = r.data
+          ids.forEach(id => {
+            if (!this.checks.includes(id)) {
+              this.$refs.tree.setChecked(id,false)
+            }
+          })
+        })
+        this.MenuDialogVis = true
       })
     },
     saveRoleMenu(){
@@ -268,6 +281,11 @@ export default {
             type: "success",
             message: "分配成功"
           })
+          if (this.roleLKey === 'ROLE_ADMIN') {
+            localStorage.removeItem("user")
+            localStorage.removeItem("menus")
+            router.push('/login')
+          }
         }else {
           this.$message({
             type: "error",

@@ -38,6 +38,11 @@ public class MenuController {
     @Resource
     private DictMapper dictMapper;
 
+    @GetMapping("/ids")
+    public Result findAllIds() {
+        return Result.success(menuService.list().stream().map(Menu::getId));
+    }
+
     @PostMapping
     public Result<?> save(@RequestBody Menu menu) {
         System.out.println(menu);

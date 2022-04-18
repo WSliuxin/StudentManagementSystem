@@ -45,10 +45,9 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements IR
         roleMenuMapper.deleteByRoleId(roleId);
 
         //再把前端传过来的菜单id数组绑定到当前的角色id上去
-
+        List<Integer> menuIdsCopy = CollUtil.newArrayList(menuIds);
         for (Integer menuId : menuIds) {
             Menu menu = menuService.getById(menuId);
-            List<Integer> menuIdsCopy = CollUtil.newArrayList(menuIds);
             if (menu.getPid() != null && !menuIdsCopy.contains(menu.getPid())) {    //二级菜单 并且传过来的menuId数组里面没有它的父级菜单id
                 // 那么我们就得补上父级id
                 RoleMenu roleMenu = new RoleMenu();

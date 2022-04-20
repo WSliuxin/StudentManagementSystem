@@ -24,7 +24,8 @@ export default {
   },
   data(){
     return {
-      user: {}
+      user: {},
+      list: {}
     }
   },
   created() {
@@ -33,9 +34,27 @@ export default {
   methods: {
     getUser() {
       let id = JSON.parse(localStorage.getItem("user")) ? JSON.parse(localStorage.getItem("user")).id : ""
-      request.get("/user/username/" + id).then(res => {
-        this.user = res.data
-      })
+      let list = JSON.parse(localStorage.getItem("user")) ? JSON.parse(localStorage.getItem("user")) : ""
+      switch (list.role) {
+        case "ROLE_ADMIN" :
+          request.get("/user/username/" + id).then(res => {
+            this.user = res.data
+            this.user.nickName = this.user.name
+          })
+              break
+        case "ROLE_USER":
+          request.get("/student/username/" + id).then(res => {
+            this.user = res.data
+            this.user.nickName = this.user.name
+          })
+          break
+        case "ROLE_TUBES":
+          request.get("/dormitory/username/" + id).then(res => {
+            this.user = res.data
+          })
+          break
+      }
+
     }
   }
 }

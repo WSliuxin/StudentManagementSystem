@@ -62,8 +62,6 @@ public class UserController {
             map.put("id",list.get(i).getId());
             map.put("username",list.get(i).getUsername());
             map.put("password",list.get(i).getPassword());
-            map.put("nickName",list.get(i).getNickName());
-            map.put("age",list.get(i).getAge());
             map.put("sex",list.get(i).getSex());
             map.put("address",list.get(i).getAddress());
             list1.add(map);
@@ -75,8 +73,6 @@ public class UserController {
         writer.addHeaderAlias("id","ID");
         writer.addHeaderAlias("username","姓名");
         writer.addHeaderAlias("password","密码");
-        writer.addHeaderAlias("nickName","昵称");
-        writer.addHeaderAlias("age","年龄");
         writer.addHeaderAlias("sex","性别");
         writer.addHeaderAlias("address","地址");
 
@@ -132,7 +128,6 @@ public class UserController {
      */
     @PutMapping("/individual")
     public Result<?> upPerson(@RequestBody User user) {
-        System.out.println(user);
         user.setPassword(userMapper.selectById(user.getId()).getPassword());
         userMapper.updateById(user);
         UserDTO userDTO = Information(user);
@@ -166,25 +161,20 @@ public class UserController {
      * @param pageSize
      * @param id
      * @param userName
-     * @param nickName
      * @return
      */
     @GetMapping
     public Result<?> findPage(@RequestParam(defaultValue = "1") Integer pageNum,
                               @RequestParam(defaultValue = "10") Integer pageSize,
                               @RequestParam(defaultValue = "") String id,
-                              @RequestParam(defaultValue = "") String userName,
-                              @RequestParam(defaultValue = "") String nickName)
+                              @RequestParam(defaultValue = "") String userName)
     {
         LambdaQueryWrapper<User> wrapper = Wrappers.<User>lambdaQuery();
-        if (StrUtil.isNotBlank(nickName)) {
-            wrapper.like(User::getNickName,nickName);
-        }
         if (StrUtil.isNotBlank(userName)){
             wrapper.like(User::getUsername,userName);
         }
         if (StrUtil.isNotBlank(id)){
-            wrapper.like(User::getId,id);
+            wrapper.like(User::getStudentId,id);
         }
         Page<User> userPage = userMapper.selectPage(new Page<>(pageNum,pageSize), wrapper);
         return Result.success(userPage);
@@ -220,8 +210,6 @@ public class UserController {
         } catch (Exception e){
             return Result.error("-2","系统错误");
         }
-
-
     }
 
     /**

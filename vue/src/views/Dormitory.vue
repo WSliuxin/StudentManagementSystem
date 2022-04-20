@@ -1,27 +1,32 @@
 <template>
-  <div style="padding: 20px">
-    <!--    功能区域-->
+  <div style="padding: 20px;min-height: calc(100vh - 50px)">
+<!--    功能区域-->
     <div style="margin: 10px 0">
       <el-button type="primary" @click="add">新增</el-button>
-      <el-button type="primary">导入</el-button>
-      <el-button type="primary">导出</el-button>
+      <el-button type="primary"  style="margin-left: 12px" @click="exp" >导出</el-button>
     </div>
-    <!--    搜索区域-->
+<!--    搜索区域-->
     <div style="margin: 10px 0">
-      <el-input v-model="search" placeholder="输入发布人信息" style="width: 20%" clearable/>
+      <el-input v-model="name" placeholder="输入姓名" style="width: 20%;margin-right: 20px" clearable/>
       <el-button type="primary" style="margin-left: 5px" @click="load">查询</el-button>
+      <el-button type="warning" style="margin-left: 5px" @click="reset">清空</el-button>
     </div>
-    <!--    内容-->
-    <el-table :data="tableData" border stripe style="width: 100%">
-      <el-table-column type="index" prop="id" label="编号" sortable width="100" />
-      <el-table-column prop="title" label="标题"  />
-      <el-table-column prop="author" label="发布人" />
-      <el-table-column prop="time" label="时间"  />
-      <el-table-column fixed="right" label="操作">
+<!--    内容-->
+    <el-table :data="tableData" border stripe style="width: 100%" @selection-change="handleSelectionChange" >
+      <el-table-column prop="name" label="姓名"  align="center "/>
+      <el-table-column prop="sex" label="性别" align="center "/>
+      <el-table-column prop="phone" label="联想电话" align="center "/>
+      <el-table-column prop="floor" label="宿舍楼" align="center "/>
+      <el-table-column prop="nickName" label="用户名" align="center "/>
+      <el-table-column prop="enable" label="启用" >
         <template #default="scope">
-          <el-button size="mini" @click="details(scope.row)">详情</el-button>
+          <el-switch v-model="scope.row.enable" active-color="#13ce66" inactive-color="#ccc" @change="changeEnable(scope.row)"></el-switch>
+        </template>
+      </el-table-column>
+      <el-table-column align="center " width="150" fixed="right" label="操作">
+        <template #default="scope">
           <el-button size="mini" @click="handleEdit(scope.row)">编辑</el-button>
-          <el-popconfirm title="确认删除吗?" @confirm="handleDelete(scope.row.id)">
+          <el-popconfirm title="确认删除吗?" @confirm="handleDelete(scope.row.id)" cancel-button-text="我再想想">
             <template #reference>
               <el-button size="mini" type="danger">删除</el-button>
             </template>
@@ -29,7 +34,7 @@
         </template>
       </el-table-column>
     </el-table>
-    <!--    分页-->
+<!--    分页-->
     <div style="margin: 10px 0">
       <el-pagination
           v-model:currentPage="currentPage"
@@ -41,18 +46,21 @@
           @current-change="handleCurrentChange"
       />
 
-      <el-dialog v-model="dialogVisible" title="编辑信息" width="50%">
+      <el-dialog v-model="dialogVisible" title="用户信息" width="30%">
         <el-form :model="form"  label-width="120px">
-          <el-form-item label="标题" >
-            <el-input v-model="form.title" style="width: 50%"/>
+          <el-form-item label="用户名" >
+          <el-input v-model="form.nickName" style="width: 80%"/>
           </el-form-item>
-
-          <div id="div1">
-
-          </div>
-<!--          <el-form-item label="公告内容" >-->
-<!--            <el-input type="textarea" v-model="form.content" style="width: 80%"/>-->
-<!--          </el-form-item>-->
+          <el-form-item label="姓名" >
+            <el-input v-model="form.name" style="width: 80%"/>
+          </el-form-item>
+          <el-form-item label="性别" >
+            <el-radio v-model="form.sex" label="男">男</el-radio>
+            <el-radio v-model="form.sex" label="女">女</el-radio>
+          </el-form-item>
+          <el-form-item label="联系电话" >
+            <el-input v-model="form.phone" style="width: 80%"/>
+          </el-form-item>
         </el-form>
         <template #footer>
           <span class="dialog-footer">
@@ -61,83 +69,78 @@
           </span>
         </template>
       </el-dialog>
-
-      <el-dialog v-model="vis" title="详情" width="50%">
-        <el-card>
-          <div v-html="detail.content" style="min-height: 100px"></div>
-        </el-card>
-      </el-dialog>
     </div>
   </div>
 </template>
 
+<style>
+</style>
+
 <script>
 
 import request from "@/utils/request";
-import E from 'wangeditor'
-
-let  editor;
+import axios from "axios";
 
 export default {
-  name: 'Announcement',
+  name: 'Student',
   components: {
   },
   data(){
     return {
       form: {},
       dialogVisible: false,
-      search: '',
+      studentId:'',
+      name:"",
       currentPage: 1,
       pageSize: 10,
       total: 0,
       tableData:[],
-      detail: {},
-      vis: false
+      row: '/0',
+      multipleTableRef: [],
     }
   },
   created() {
     this.load()
   },
-  mounted() {
-  },
   methods: {
-    details(row){ //详情按钮
-      this.detail = row
-      this.vis = true
+    exp() {
+      window.open("http://localhost:9090/student/export")
+    },
+    fileUploadSuccess(res) {
+      this.form.cover = res.data
     },
     load(){ //页面刷新
-      request.get("/announcement",{
+      request.get("/dormitory/page",{
         params: {
           pageNum: this.currentPage,
           pageSize: this.pageSize,
-          search: this.search
+          studentId: this.studentId,
+          name: this.name,
         }
       }).then(res => {
-        console.log(res)
-        this.tableData = res.data.records
-        this.total = res.data.total
+        console.log(res.records)
+        this.tableData = res.records ? res.records : {}
+        this.total = res.total ? res.total : 0
       })
+
+
+    },
+    reset (){
+      this.studentId = ""
+      this.name = ""
+      this.load()
     },
     add(){ //新增弹出添加框
       this.dialogVisible = true
       this.form = {}
-
-      this.$nextTick( () => {
-        if (editor) {
-          editor.destroy()
-        }
-          //关联弹窗里面的div，new一个editor对象
-          editor = new E('#div1')
-          editor.config.uploadImgServer = 'http://localhost:9090/files/editor/upload'
-          editor.config.uploadFileName = 'file'
-          editor.create()
-      })
+    },
+    handleSelectionChange(val){
+      this.multipleTableRef = val
     },
     save(){ //保存
-      this.form.content = editor.txt.html()   //获取编辑器内的内容，赋值到实体中
-
+      console.log(this.form.id)
       if (this.form.id){ //更新
-        request.put("/announcement",this.form).then(res => {
+        request.put("/dormitory",this.form).then(res => {
           if (res.code === '0'){
             this.$message({
               type: "success",
@@ -153,12 +156,7 @@ export default {
         this.load()//刷新表格
         this.dialogVisible = false
       }else { //新增
-
-        let userStr = sessionStorage.getItem("user") || "{}"
-        let user = JSON.parse(userStr)
-        this.form.author = user.nickName
-
-        request.post( "/announcement",this.form).then(res => {
+        request.post( "/dormitory",this.form).then(res => {
           if (res.code === '0'){
             this.$message({
               type: "success",
@@ -176,26 +174,12 @@ export default {
       }
     },
     handleEdit(row){ //编辑
-
       this.form = JSON.parse(JSON.stringify(row))
       this.dialogVisible = true
 
-
-      this.$nextTick( () => {
-        if (!editor) {
-          //关联弹窗里面的div，new一个editor对象
-          editor = new E('#div1')
-
-          editor.create()
-        }
-        editor.txt.html(row.content)
-      })
-
-
     },
     handleDelete(id){ //删除
-      console.log(id)
-      request.delete("/announcement/"+ id).then(res => {
+      request.delete("/dormitory/"+ id).then(res => {
         if (res.code === '0'){
           this.$message({
             type: "success",
@@ -219,6 +203,17 @@ export default {
       this.currentPage = pageNum
       this.load()
     },
+    changeEnable(row) {
+      request.post("/dormitory/update",row).then(res => {
+        if (res.code === "0") {
+          this.$message({
+            type: "success",
+            message: "操作成功"
+          })
+        }
+
+      })
+    }
   }
 }
 </script>

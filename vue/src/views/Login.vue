@@ -1,6 +1,6 @@
 <template>
   <div class="wrapper" style="width: 100%; height: 100vh;background-color: darkslateblue; overflow: hidden">
-    <div style="width: 350px;height: 300px; margin: 200px auto;background-color: #ffffff;padding: 20px;border-radius: 12px">
+    <div style="width: 420px;height: 350px; margin: 200px auto;background-color: #ffffff;padding: 20px;border-radius: 12px">
       <div style="color: #161515;font-size: 30px;text-align: center;padding: 30px 0">登录</div>
       <el-form style="margin: 0 20px;" ref="form" :model="form" size="normal" :rules="rules">
         <el-form-item prop="username">
@@ -20,6 +20,11 @@
               </el-icon>
             </template>
           </el-input>
+        </el-form-item>
+        <el-form-item label="角色：" >
+          <el-radio v-model="form.role" label="管理员">管理员</el-radio>
+          <el-radio v-model="form.role" label="宿舍管理员">宿舍管理员</el-radio>
+          <el-radio v-model="form.role" label="学生">学生</el-radio>
         </el-form-item>
         <div style="text-align: center">
           <el-button type="primary" @click="login">登录</el-button>
@@ -62,27 +67,73 @@ export default {
   },
   methods: {
     login() {
+      console.log(this.form.role)
       this.$refs['form'].validate((valid) => {
         if (valid) {
-          request.post("/user/login", this.form).then( res => {
-            if (res.code === '0'){
-              this.$message({
-                type: "success",
-                message: "登录成功"
-              })
-              localStorage.setItem("user",JSON.stringify(res.data)) //缓存用户信息
-              localStorage.setItem("menus",JSON.stringify(res.data.menus)) //缓存用户信息
-              this.$router.push("/") //登录成功之后进行页面的跳转
+          if (this.form.role === "宿舍管理员") {
+            this.form.nickName = this.form.username
+            request.post("/dormitory/login", this.form).then( res => {
+              if (res.code === '0'){
+                this.$message({
+                  type: "success",
+                  message: "登录成功"
+                })
+                localStorage.setItem("user",JSON.stringify(res.data)) //缓存用户信息
+                localStorage.setItem("menus",JSON.stringify(res.data.menus)) //缓存用户信息
+                this.$router.push("/") //登录成功之后进行页面的跳转
 
-              //动态设置当前用户的路由
-              setRoutes()
-            }else {
-              this.$message({
-                type: "error",
-                message: res.msg
-              })
-            }
-          })
+                //动态设置当前用户的路由
+                setRoutes()
+              }else {
+                this.$message({
+                  type: "error",
+                  message: res.msg
+                })
+              }
+            })
+          }else if (this.form.role === "管理员"){
+            request.post("/user/login", this.form).then( res => {
+              if (res.code === '0'){
+                this.$message({
+                  type: "success",
+                  message: "登录成功"
+                })
+                localStorage.setItem("user",JSON.stringify(res.data)) //缓存用户信息
+                localStorage.setItem("menus",JSON.stringify(res.data.menus)) //缓存用户信息
+                this.$router.push("/") //登录成功之后进行页面的跳转
+
+                //动态设置当前用户的路由
+                setRoutes()
+              }else {
+                this.$message({
+                  type: "error",
+                  message: res.msg
+                })
+              }
+            })
+          }else if (this.form.role === "学生") {
+            this.form.studentId = this.form.username
+            console.log(this.form.studentId)
+            request.post("/student/login", this.form).then( res => {
+              if (res.code === '0'){
+                this.$message({
+                  type: "success",
+                  message: "登录成功"
+                })
+                localStorage.setItem("user",JSON.stringify(res.data)) //缓存用户信息
+                localStorage.setItem("menus",JSON.stringify(res.data.menus)) //缓存用户信息
+                this.$router.push("/") //登录成功之后进行页面的跳转
+
+                //动态设置当前用户的路由
+                setRoutes()
+              }else {
+                this.$message({
+                  type: "error",
+                  message: res.msg
+                })
+              }
+            })
+          }
         }
       })
     },

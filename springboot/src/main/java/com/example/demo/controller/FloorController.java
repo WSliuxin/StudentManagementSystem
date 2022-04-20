@@ -2,6 +2,7 @@ package com.example.demo.controller;
 
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.demo.common.Result;
@@ -25,7 +26,7 @@ public class FloorController {
     }
 
     @PutMapping
-    public Result<?> updata(@RequestBody Floor floor) {
+    public Result<?> update(@RequestBody Floor floor) {
         floorMapper.updateById(floor);
         return  Result.success();
     }
@@ -47,6 +48,12 @@ public class FloorController {
     public Result<?> delete(@PathVariable Long id) {
         floorMapper.deleteById(id);
         return  Result.success();
+    }
+
+    @GetMapping("/findAll")
+    public Result findAll() {
+        QueryWrapper<Floor> queryWrapper = new QueryWrapper<>();
+        return Result.success(floorMapper.selectList(queryWrapper));
     }
 
 }

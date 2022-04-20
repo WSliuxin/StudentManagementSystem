@@ -91,8 +91,6 @@ public class MenuController {
 
     @GetMapping
     public Result<?> findAll (@RequestParam(defaultValue = "") String name) {
-
-
         return Result.success( menuService.findMenu(name));
     }
 

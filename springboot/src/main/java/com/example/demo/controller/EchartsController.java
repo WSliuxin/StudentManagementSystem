@@ -2,9 +2,14 @@ package com.example.demo.controller;
 
 import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.example.demo.common.Result;
+import com.example.demo.entity.Dormitory;
+import com.example.demo.entity.Student;
 import com.example.demo.entity.User;
+import com.example.demo.mapper.DormitoryMapper;
+import com.example.demo.mapper.StudentMapper;
 import com.example.demo.mapper.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.annotation.Resource;
 import javax.xml.crypto.Data;
 import java.util.HashMap;
 import java.util.List;
@@ -21,37 +27,26 @@ import java.util.Map;
 @RequestMapping("/echarts")
 public class EchartsController {
 
-    @Autowired
-    private UserMapper userMapper;
+    @Resource
+    private DormitoryMapper dormitoryMapper;
 
-    @GetMapping("/example")
-    public Result<?> get() {
-        Map<String, Object> map = new HashMap<>();
-        map.put("x", CollUtil.newArrayList("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"));
-        map.put("y",CollUtil.newArrayList(150,230,224,218,147,260,100));
-        return Result.success(map);
-    }
+    @Resource
+    private StudentMapper studentMapper;
 
     @GetMapping("/members")
     public Result<?> members() {
-        LambdaQueryWrapper<User> wrapper = Wrappers.lambdaQuery();
-        List<User> list = userMapper.selectList(wrapper);
+        QueryWrapper<Dormitory> queryWrapper = new QueryWrapper<>();
 
-        int q1 = 0; //  系统管理员
-        int q2 = 0; //  宿舍管理员
-        int q3 = 0; //  用户
-        int q4 = 0; //  未定义用户
+        List<Dormitory> list1 = dormitoryMapper.selectList(queryWrapper);
 
-        for (User user : list) {
-            String role = user.getRole();
-//            switch (role) {
-//                case "1" : q1++; break;
-//                case "2" : q2++; break;
-//                case "3" : q3++; break;
-//                default: q4++; break;
-//            }
-        }
+        QueryWrapper<Student> queryWrapper2 = new QueryWrapper<>();
 
-        return Result.success(CollUtil.newArrayList(q1,q2,q3,q4));
+        List<Student> list2 = studentMapper.selectList(queryWrapper2);
+
+        int q1 = list1.size(); //  宿舍管理员
+        int q2 = list2.size(); //  学生
+
+
+        return Result.success(CollUtil.newArrayList(q1,q2));
     }
 }

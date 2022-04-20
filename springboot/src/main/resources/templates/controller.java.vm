@@ -59,7 +59,7 @@ public class ${table.controllerName} {
     @PutMapping
     public Result<?> update(@RequestBody ${entity} ${table.entityPath}) {
         //更新
-        ${table.entityPath}Service.updateById(role);
+        ${table.entityPath}Service.updateById(${table.entityPath});
         return  Result.success();
     }
 

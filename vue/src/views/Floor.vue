@@ -3,8 +3,6 @@
     <!--    功能区域-->
     <div style="margin: 10px 0">
       <el-button type="primary" @click="add">新增</el-button>
-      <el-button type="primary">导入</el-button>
-      <el-button type="primary">导出</el-button>
     </div>
     <!--    搜索区域-->
     <div style="margin: 10px 0">名称：
@@ -16,9 +14,10 @@
       <el-table-column type="index" prop="id" label="编号" width="100" />
       <el-table-column prop="name" label="名称" width="150" />
       <el-table-column prop="synopsis" label="简介" />
-      <el-table-column prop="administrators" label="管理员" width="150" />
-      <el-table-column fixed="right" label="操作" width="150">
+      <el-table-column prop="administrators" label="管理员" />
+      <el-table-column fixed="right" label="操作" width="300">
         <template #default="scope">
+          <el-button size="mini" @click="handleEdit2(scope)">更改管理员</el-button>
           <el-button size="mini" @click="handleEdit(scope)">编辑</el-button>
           <el-popconfirm title="确认删除吗?" @confirm="handleDelete(scope.row.id)">
             <template #reference>
@@ -51,13 +50,28 @@
           <el-form-item label="简介" >
             <el-input v-model="form.synopsis" style="width: 80%"/>
           </el-form-item>
-          <el-form-item label="管理员" >
-            <el-input v-model="form.administrators" style="width: 80%"/>
-          </el-form-item>
         </el-form>
         <template #footer>
           <span class="dialog-footer">
             <el-button @click="dialogVisible = false">取 消</el-button>
+            <el-button type="primary" @click="save">确 认</el-button>
+          </span>
+        </template>
+      </el-dialog>
+
+      <el-dialog v-model="dialogVisible2" title="选择管理员" width="30%">
+        <el-form :model="form"  label-width="120px">
+          <el-form-item label="管理员" >
+            <el-select clearable v-model="form.administrators" placeholder="请选择">
+              <el-option v-for="item in options" :key="item.name" :label="item.name" :value="item.name" >
+                {{item.name}}
+              </el-option>
+            </el-select>
+          </el-form-item>
+        </el-form>
+        <template #footer>
+          <span class="dialog-footer">
+            <el-button @click="dialogVisible2 = false">取 消</el-button>
             <el-button type="primary" @click="save">确 认</el-button>
           </span>
         </template>
@@ -78,13 +92,15 @@ export default {
     return {
       form: {},
       dialogVisible: false,
+      dialogVisible2: false,
       search: '',
       currentPage: 1,
       pageSize: 10,
       total: 0,
       tableData:[],
       id: 0,
-      user: {}
+      user: {},
+      options: {}
     }
   },
   created() {
@@ -136,6 +152,7 @@ export default {
         })
         this.load()//刷新表格
         this.dialogVisible = false
+        this.dialogVisible2 = false
       }else { //新增
         request.post( "/floor",this.form).then(res => {
           if (res.code === '0'){
@@ -152,12 +169,21 @@ export default {
         })
         this.load()//刷新表格
         this.dialogVisible = false
+        this.dialogVisible2 = false
       }
     },
     handleEdit(scope){ //编辑
       this.id=scope.$index+1
       this.form = JSON.parse(JSON.stringify(scope.row))
       this.dialogVisible = true
+    },
+    handleEdit2(scope) {
+      this.id=scope.$index+1
+      this.form = JSON.parse(JSON.stringify(scope.row))
+      this.dialogVisible2 = true
+      request.get("/dormitory/findAll").then(res => {
+        this.options = res.data
+      })
     },
     handleDelete(id){ //删除
       request.delete("/floor/"+ id).then(res => {

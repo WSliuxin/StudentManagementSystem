@@ -16,3 +16,8 @@ logging:
 files:
     upload:
         path: C:/Users/Administrator/Desktop/springboot+vue/files/
+
+
+mybatis:
+  configuration:
+      map-underscore-to-camel-case: true

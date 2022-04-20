@@ -4,8 +4,7 @@
     <div style="flex: 1"></div>
     <div style="width: 100px;cursor: pointer;color: var(--el-color-primary);display: flex;align-items: center;">
       <el-dropdown prefix-icon="ArrowDown">
-        <span class="el-dropdown-link">
-          {{ user.nickName }}
+        <span class="el-dropdown-link">{{ user.nickName }}
         </span>
         <template #dropdown>
           <el-dropdown-menu>

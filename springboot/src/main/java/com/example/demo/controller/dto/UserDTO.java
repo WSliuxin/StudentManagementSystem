@@ -16,20 +16,14 @@ public class UserDTO {
     @Alias("姓名")
     private String username;
 
-    @Alias("昵称")
-    private String nickName;
-
-    @Alias("年龄")
-    private Integer age;
+    @Alias("学号")
+    private Integer studentId;
 
     @Alias("性别")
     private String sex;
 
     @Alias("地址")
     private String address;
-
-    @Alias("用户头像地址")
-    private String cover;
 
     @Alias("用户级别")
     private String role;

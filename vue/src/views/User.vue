@@ -17,18 +17,15 @@
     <div style="margin: 10px 0">
       <el-input v-model="id" placeholder="输入ID" style="width: 20%;margin-right: 20px" clearable suffix-icon="el-icon-search"/>
       <el-input v-model="userName" placeholder="输入姓名" style="width: 20%;margin-right: 20px" clearable/>
-      <el-input v-model="nickName" placeholder="输入昵称" style="width: 20%;margin-right: 20px" clearable/>
       <el-button type="primary" style="margin-left: 5px" @click="load">查询</el-button>
       <el-button type="warning" style="margin-left: 5px" @click="reset">清空</el-button>
     </div>
 <!--    内容-->
     <el-table :data="tableData" border stripe style="width: 100%" @selection-change="handleSelectionChange" >
       <el-table-column type="selection" width="55" align="center"></el-table-column>
-      <el-table-column prop="id" label="学号" width="80" sortable />
+      <el-table-column prop="studentId" label="学号" width="80" sortable />
       <el-table-column prop="username" label="姓名"  align="center "/>
-      <el-table-column prop="nickName" label="昵称" align="center "/>
       <el-table-column prop="role" label="角色" align="center "/>
-      <el-table-column prop="age" label="年龄"  align="center "/>
       <el-table-column prop="sex" label="性别" align="center "/>
       <el-table-column prop="address" label="地址" align="center "/>
       <el-table-column align="center " width="150" fixed="right" label="操作">
@@ -64,12 +61,6 @@
               <el-option v-for="item in roles" :key="item.name" :label="item.name" :value="item.key">
               </el-option>
             </el-select>
-          </el-form-item>
-          <el-form-item label="昵称" >
-            <el-input v-model="form.nickName" style="width: 80%"/>
-          </el-form-item>
-          <el-form-item label="年龄" >
-            <el-input v-model="form.age" style="width: 80%"/>
           </el-form-item>
           <el-form-item label="性别" >
             <el-radio v-model="form.sex" label="男">男</el-radio>
@@ -108,7 +99,6 @@ export default {
       form: {},
       dialogVisible: false,
       id: '',
-      nickName:"",
       userName:"",
       currentPage: 1,
       pageSize: 10,
@@ -136,7 +126,6 @@ export default {
           pageSize: this.pageSize,
           id: this.id,
           userName: this.userName,
-          nickName: this.nickName,
         }
       }).then(res => {
         console.log(res)
@@ -151,7 +140,6 @@ export default {
     reset (){
       this.id = ""
       this.userName = ""
-      this.nickName = ""
       this.load()
     },
     add(){ //新增弹出添加框

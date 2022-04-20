@@ -52,8 +52,6 @@ export default {
     }
   },
   mounted() { //页面元素渲染后在触发
-
-    console.log("111111111111111111111")
     //饼图
     let pieoption = {
       title: {
@@ -106,7 +104,7 @@ export default {
       },
       xAxis: {
         type: 'category',
-        data: ["系统管理员","宿舍管理员","用户","未知人员"]
+        data: ["宿舍管理员","学生"]
       },
       yAxis: {
         type: 'value'
@@ -132,10 +130,8 @@ export default {
       option.series[1].data = res.data
 
       pieoption.series[0].data = [
-        {name: "系统管理员", value: res.data[0]},
-        {name: "宿舍管理员", value: res.data[1]},
-        {name: "用户", value: res.data[2]},
-        {name: "未知人员", value: res.data[3]},
+        {name: "宿舍管理员", value: res.data[0]},
+        {name: "学生", value: res.data[1]},
       ]
       //数据传输完毕在set
       myChart.setOption(option)

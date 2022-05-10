@@ -2,6 +2,7 @@ package com.example.demo.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.demo.common.Result;
 import com.example.demo.controller.dto.DorDTO;
 import com.example.demo.controller.dto.UserDTO;
@@ -32,6 +33,8 @@ import java.util.List;
 @Service
 public class DormitoryServiceImpl extends ServiceImpl<DormitoryMapper, Dormitory> implements IDormitoryService {
 
+    @Resource
+    DormitoryMapper dormitoryMapper;
 
     @Resource
     RoleMapper roleMapper;
@@ -54,6 +57,11 @@ public class DormitoryServiceImpl extends ServiceImpl<DormitoryMapper, Dormitory
         return Result.success(dorDTO);
     }
 
+    @Override
+    public Page<Dormitory> findPage(Page<Dormitory> page, String name) {
+        return dormitoryMapper.findPage(page,name);
+    }
+
     /**
      * 将User转成UserDTO
      * @param res
@@ -66,8 +74,9 @@ public class DormitoryServiceImpl extends ServiceImpl<DormitoryMapper, Dormitory
         BeanUtil.copyProperties(res,dorDTO,true);
 
         //Token
-        String token = TokenUtils.genToken(res.getId().toString(),res.getPassword());
+        String token = TokenUtils.genToken(res.getRole()+res.getId().toString(),res.getPassword());
         dorDTO.setToken(token);
+
 
         String role = res.getRole();
 

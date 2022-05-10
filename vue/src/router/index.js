@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Login from "../views/Login";
+import store from "@/store";
 
 const routes = [
   {
@@ -17,11 +18,6 @@ const routes = [
     name: '404',
     component: () =>import("@/views/404.vue")
   },
-  // {
-  //   path: '/attendance',
-  //   name: 'Attendance',
-  //   component: () =>import("@/views/Attendance.vue")
-  // },
 ]
 
 let router = createRouter({
@@ -30,8 +26,8 @@ let router = createRouter({
 })
 
 //路由重置方法
-export const resetRouter = () => {
-  router.matcher = new VueRouter({
+export function resetRouter () {
+  router.matcher = createRouter({
     history: createWebHistory(process.env.BASE_URL),
     routes
   })
@@ -46,7 +42,7 @@ export const setRoutes = () => {
     const currentRouteNames = router.getRoutes().map(v => v.name)
     if (!currentRouteNames.includes('Layout')) {
       // 拼接动态路由
-      const manageRoute = { path: '/', name: 'Layout', component: () =>import("../layout/Layout"),redirect: "/home",children: [
+      const manageRoute = { path: '/', name: '首页', component: () =>import("../layout/Layout"),redirect: "/home",children: [
           { path: '/person', name: '个人信息', component: () => import('@/views/Person')},
         ] }
       const menus = JSON.parse(storeMenus)
@@ -74,7 +70,9 @@ export const setRoutes = () => {
 setRoutes()
 
 router.beforeEach((to,form,next) => {
+
   const storeMenus = localStorage.getItem("menus")
+  console.log("222222222222222222")
   if (!to.matched.length) {
     if (storeMenus) {
       next('/404')
@@ -82,6 +80,8 @@ router.beforeEach((to,form,next) => {
       next('/login')
     }
   }
+  localStorage.setItem("currentPathName",to.name.toString())
+  store.commit('setPath')
   next()
 
 })

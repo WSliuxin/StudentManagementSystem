@@ -1,5 +1,5 @@
 <template>
-  <div style="padding: 20px;min-height: calc(100vh - 50px)">
+  <div style="padding: 20px;min-height: calc(100vh - 70px)">
 <!--    功能区域-->
     <div style="margin: 10px 0">
       <el-button type="primary" @click="add">新增</el-button>

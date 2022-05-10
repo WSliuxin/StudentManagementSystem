@@ -6,11 +6,14 @@ import cn.hutool.poi.excel.ExcelReader;
 import cn.hutool.poi.excel.ExcelUtil;
 import cn.hutool.poi.excel.ExcelWriter;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.demo.common.Result;
+import com.example.demo.controller.dto.Individual;
 import com.example.demo.controller.dto.UserDTO;
 import com.example.demo.entity.Menu;
+import com.example.demo.entity.Student;
 import com.example.demo.entity.User;
 import com.example.demo.mapper.RoleMapper;
 import com.example.demo.mapper.RoleMenuMapper;
@@ -122,16 +125,21 @@ public class UserController {
     }
 
     /**
-     * 修改保存信息接口
-     * @param user
+     * 修改密码接口
+     * @param
      * @return
      */
     @PutMapping("/individual")
-    public Result<?> upPerson(@RequestBody User user) {
-        user.setPassword(userMapper.selectById(user.getId()).getPassword());
-        userMapper.updateById(user);
-        UserDTO userDTO = Information(user);
-        return  Result.success(userDTO);
+    public Result<?> upPerson(@RequestBody Individual individual) {
+        String password = userMapper.selectById(individual.getId()).getPassword();
+        if (password.equals(individual.getPassword())){
+            User user = userMapper.selectById(individual.getId());
+            user.setPassword(individual.getNewpassword());
+            userMapper.updateById(user);
+        }else {
+            return Result.error("-1","原密码输入错误");
+        }
+        return  Result.success();
     }
 
     /**
@@ -252,7 +260,7 @@ public class UserController {
         BeanUtil.copyProperties(res, userDTO, true);
 
         //Token
-        String token = TokenUtils.genToken(res.getId().toString(),res.getPassword());
+        String token = TokenUtils.genToken(res.getRole()+res.getId().toString(),res.getPassword());
         userDTO.setToken(token);
 
         String role = res.getRole();

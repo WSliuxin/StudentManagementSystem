@@ -2,6 +2,7 @@ package com.example.demo.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.demo.common.Result;
 import com.example.demo.controller.dto.DorDTO;
 import com.example.demo.controller.dto.StuDTO;
@@ -41,6 +42,9 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
     @Resource
     RoleMenuMapper roleMenuMapper;
 
+    @Resource
+    StudentMapper studentMapper;
+
     @Override
     public Result<?> login(Student student) {
         QueryWrapper<Student> queryWrapper = new QueryWrapper<>();
@@ -53,6 +57,11 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
         return Result.success(stuDTO);
     }
 
+    @Override
+    public Page<Student> findPage(Page<Student> page, String studentId, String name, String sex,String floor,String id) {
+        return studentMapper.findPage(page,studentId,name,sex,floor,id);
+    }
+
     /**
      * 将User转成UserDTO
      * @param res
@@ -62,10 +71,16 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
 
         StuDTO stuDTO = new StuDTO();
 
-        BeanUtil.copyProperties(res,stuDTO,true);
+        stuDTO.setId(res.getId());
+        stuDTO.setName(res.getName());
+        stuDTO.setPhone(res.getPhone());
+        stuDTO.setStudentId(res.getStudentId());
+        stuDTO.setRole(res.getRole());
+        stuDTO.setSex(res.getSex());
+
 
         //Token
-        String token = TokenUtils.genToken(res.getId().toString(),res.getPassword());
+        String token = TokenUtils.genToken(res.getRole()+res.getId().toString(),res.getPassword());
         stuDTO.setToken(token);
 
         String role = res.getRole();
@@ -73,6 +88,7 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
         //设置用户菜单列表
         List<Menu> roleMenus = getRoleMenu(role);
         stuDTO.setMenus(roleMenus);
+
 
         return stuDTO;
     }

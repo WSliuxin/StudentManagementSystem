@@ -1,7 +1,12 @@
 <template>
-  <div style="height: 50px;line-height: 50px; border-bottom: 1px solid #ccc;display: flex">
-    <div style="width: 200px;padding-left: 30px;font-weight:bold;color:royalblue ">后台管理</div>
-    <div style="flex: 1"></div>
+  <div style="height: 70px;line-height: 70px; border-bottom: 2px solid #a7b1b1;display: flex">
+    <div style="flex: 1">
+      <span style="cursor: pointer;font-size: 20px" @click="collapse"></span>
+      <el-breadcrumb separator="/" style="display:inline-block; margin-left: 20px">
+        <el-breadcrumb-item :to="'/'">首页</el-breadcrumb-item>
+        <el-breadcrumb-item>{{ currentPathName}}</el-breadcrumb-item>
+      </el-breadcrumb>
+    </div>
     <div style="width: 100px;cursor: pointer;color: var(--el-color-primary);display: flex;align-items: center;">
       <el-dropdown prefix-icon="ArrowDown">
         <span class="el-dropdown-link">{{ user.nickName }}
@@ -26,11 +31,24 @@ export default {
   props: {
     user: Object
   },
+  watch: {
+    currentPathName(newVal,oldval) {
+      console.log(newVal)
+    },
+
+  },
+  computed: {
+    currentPathName () {
+      return this.$store.state.currentPathName;
+    }
+  },
   components: {
-    ArrowDownBold
+    ArrowDownBold,
+
   },
   created() {
     this.load()
+
   },
   data() {
     return {
@@ -38,6 +56,7 @@ export default {
   },
   methods: {
     quit() {
+      localStorage.clear()
       localStorage.removeItem("user")
       localStorage.removeItem("menus")
       router.push('/login')
@@ -45,7 +64,7 @@ export default {
     },
     load() {
       if (localStorage.getItem("user")==null){
-        return
+
       }
       //console.log(user)
       // this.user.name = JSON.parse(localStorage.getItem("user")).nickname

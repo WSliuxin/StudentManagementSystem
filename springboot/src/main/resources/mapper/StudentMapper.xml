@@ -2,4 +2,36 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.example.demo.mapper.StudentMapper">
 
+    <resultMap id="pageDormitory" type="com.example.demo.entity.Student">
+        <result column="id" property="id"/>
+        <result column="student_id" property="studentId"/>
+        <result column="name" property="name"/>
+        <result column="phone" property="phone"/>
+        <result column="sex" property="sex"/>
+        <result column="bedroom" property="bedroom"/>
+        <result column="floor_name" property="floorName"/>
+    </resultMap>
+
+    <select id="findPage" resultMap="pageDormitory">
+        SELECT floor.floor_name,sys_student.*,sys_dormitory.*
+        FROM (sys_student LEFT JOIN floor ON sys_student.floor_id = floor.id)
+        LEFT JOIN sys_dormitory ON floor.administrators = sys_dormitory.id
+        <where>
+            <if test="id != null and id !=''">
+                and sys_dormitory.id like concat(#{id})
+            </if>
+            <if test="studentId != null and studentId != ''">
+                and sys_student.student_id like concat('%', #{studentId},'%')
+            </if>
+            <if test="name != null and name != ''">
+                and sys_student.name like concat('%', #{name},'%')
+            </if>
+            <if test="sex != null and sex != ''">
+                and sys_student.sex like concat('%', #{sex},'%')
+            </if>
+            <if test="floor != null and floor != ''">
+                and floor.floor_name like concat('%', #{floor},'%')
+            </if>
+        </where>
+    </select>
 </mapper>

@@ -1,26 +1,34 @@
 <template>
   <div>
+
     <el-menu
-        style="width: 200px;min-height: calc(100vh - 50px)"
+        style="width: 200px;min-height: 100vh"
+        active-text-color="#ffd04b"
+        background-color="#2E3336FF"
+        text-color="#b7b7c1"
         :default-active="path"
         :default-openeds="opens"
+        :collapse-transition="false"
         router
         class="el-menu-vertical-demo">
+      <div style="height: 70px;color: #fff;font-size: 25px;
+      text-align: center;line-height: 70px;
+      background-color: #25292a;border-bottom: 2px solid #000;" ><b>宿舍管理</b></div>
         <div v-for="item in menus" :key="item.id">
           <div v-if="item.path">
             <el-menu-item :index="item.path">
-              <span><component :is="item.icon" style="width: 56px; height:56px;padding:15px" />{{ item.name }}</span>
+              <span><component :is="item.icon" style="width: 40px; height:56px;padding:20px 10px" />{{ item.name }}</span>
             </el-menu-item>
           </div>
 
           <div v-else>
             <el-sub-menu :index="item.id + '' ">
               <template #title>
-                <span><component :is="item.icon" style="width: 56px; height:56px;padding:15px" />{{ item.name }}</span>
+                <span><component :is="item.icon" style="width: 40px; height:56px;padding:20px 10px" />{{ item.name }}</span>
               </template>
               <div v-for="subItem in item.children" :key="subItem.id">
                 <el-menu-item :index="subItem.path">
-                  <span><component :is="subItem.icon" style="width: 56px; height:56px;padding:15px" />{{ subItem.name }}</span>
+                  <span><component :is="subItem.icon" style="width: 40px; height:56px;padding:20px 10px" />{{ subItem.name }}</span>
                 </el-menu-item>
               </div>
             </el-sub-menu>

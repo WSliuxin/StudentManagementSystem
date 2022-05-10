@@ -33,6 +33,9 @@ public class JwtInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
+        User user = null;
+        Dormitory dormitory = null;
+        Student student = null;
         String token = request.getHeader("token");
 
         System.out.println(request.getRequestURI());
@@ -47,13 +50,24 @@ public class JwtInterceptor implements HandlerInterceptor {
         String userId = new String();
         try {
             userId = JWT.decode(token).getAudience().get(0);
+
         } catch (JWTDecodeException j){
             throw new ServiceException("401","token验证失败，请重新登录");
         }
+
         //获取token中的user id
-        User user = userMapper.selectById(userId);
-        Dormitory dormitory = dormitoryMapper.selectById(userId);
-        Student student = studentMapper.selectById(userId);
+        if (userId.contains("ROLE_USER")){
+            userId = userId.replace("ROLE_USER","");
+            student = studentMapper.selectById(userId);
+        }else if (userId.contains("ROLE_TUBES")) {
+            userId = userId.replace("ROLE_TUBES","");
+            dormitory = dormitoryMapper.selectById(userId);
+        }else {
+            userId = userId.replace("ROLE_ADMIN","");
+            user = userMapper.selectById(userId);
+        }
+
+
         if (user == null && dormitory == null && student ==null){
             throw new ServiceException("401","用户不存在，请重新登录");
         }
@@ -70,8 +84,6 @@ public class JwtInterceptor implements HandlerInterceptor {
             jwtVerifier.verify(token); //验证token
         } catch (JWTDecodeException e){
             throw new ServiceException("401","token验证失败，请重新登录");
-        } catch (SignatureVerificationException s) {
-            throw new ServiceException("401","密码已失效，请重新登录");
         }
         return true;
     }

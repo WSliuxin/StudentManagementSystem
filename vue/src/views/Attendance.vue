@@ -1,5 +1,5 @@
 <template>
-  <div style="padding: 20px;min-height: calc(100vh - 50px)">
+  <div style="padding: 20px;min-height: calc(100vh - 70px)">
 <!--    功能区域-->
     <div style="margin: 10px 0" v-if="user.role!=='ROLE_USER'">
       <el-button type="primary" @click="add">新增</el-button>
@@ -11,8 +11,15 @@
     </div>
 <!--    搜索区域-->
     <div style="margin: 10px 0">
-      <el-input v-model="studentId" placeholder="输入学号" style="width: 20%;margin-right: 20px" clearable suffix-icon="el-icon-search"/>
-      <el-input v-model="name" placeholder="输入姓名" style="width: 20%;margin-right: 20px" clearable/>
+      <el-select v-model="value" placeholder="学号" style="width: 80px;margin-right: 10px">
+        <el-option
+            v-for="item in options2"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+        />
+      </el-select>
+      <el-input v-model="name" placeholder="输入姓名" style="width: 15%;margin-right: 10px" clearable/>
       <el-button type="primary" style="margin-left: 5px" @click="load">查询</el-button>
       <el-button type="warning" style="margin-left: 5px" @click="reset">清空</el-button>
     </div>
@@ -22,10 +29,10 @@
       <el-table-column prop="date" label="日期" width="100" sortable />
       <el-table-column prop="studentId" label="学号" width="80" sortable />
       <el-table-column prop="name" label="姓名"  align="center "/>
-      <el-table-column prop="floor" label="宿舍楼" align="center "/>
+      <el-table-column prop="floorName" label="宿舍楼" align="center "/>
       <el-table-column prop="content" label="备注" align="center "/>
       <el-table-column prop="bedroom" label="寝室号" align="center "/>
-      <el-table-column align="center " width="150" fixed="right" label="操作" v-if="user.role!=='ROLE_USER'">
+      <el-table-column align="center " width="150" fixed="right" label="操作" v-if="user.role !== 'ROLE_USER'">
         <template #default="scope">
           <el-button size="mini" @click="handleEdit(scope.row)">编辑</el-button>
           <el-popconfirm title="确认删除吗?" @confirm="handleDelete(scope.row.id)" cancel-button-text="我再想想">
@@ -48,7 +55,7 @@
           @current-change="handleCurrentChange"
       />
 
-      <el-dialog v-model="dialogVisible" title="用户信息" width="30%">
+      <el-dialog v-model="dialogVisible" title="缺勤信息" width="30%">
         <el-form :model="form"  label-width="120px">
           <el-form-item label="日期" >
             <el-date-picker v-model="form.date" value-format="YYYY-MM-DD" type="date" style="width: 80%;" clearable></el-date-picker>
@@ -96,7 +103,19 @@ export default {
       row: '/0',
       multipleTableRef: [],
       options: {},
-      user: JSON.parse(localStorage.getItem("user")) ? JSON.parse(localStorage.getItem("user")) : {}
+      user: JSON.parse(localStorage.getItem("user")) ? JSON.parse(localStorage.getItem("user")) : {},
+      value: "",
+      options2: [
+        {
+          value: '学号',
+          label: '学号',
+        },
+        {
+          value: '姓名',
+          label: '姓名',
+        },
+      ],
+      type: "",
     }
   },
   created() {
@@ -110,19 +129,50 @@ export default {
       this.form.cover = res.data
     },
     load(){ //页面刷新
-      request.get("/attendance/page",{
-        params: {
-          pageNum: this.currentPage,
-          pageSize: this.pageSize,
-          studentId: this.studentId,
-          name: this.name,
+      if (this.user.role==="ROLE_TUBES"||this.user.role==="ROLE_USER"){
+        this.type = this.user.id
+      }
+      if (this.user.role==="ROLE_USER") {
+        request.get("/attendance/page",{
+          params: {
+            pageNum: this.currentPage,
+            pageSize: this.pageSize,
+            studentId: this.user.studentId,
+          }
+        }).then(res => {
+          this.tableData = res.records ? res.records : {}
+          this.total = res.total ? res.total : 0
+        })
+      }else {
+        switch (this.value) {
+          case "姓名" :
+            request.get("/attendance/page",{
+              params: {
+                pageNum: this.currentPage,
+                pageSize: this.pageSize,
+                name: this.name,
+                id: this.type
+              }
+            }).then(res => {
+              this.tableData = res.records ? res.records : {}
+              this.total = res.total ? res.total : 0
+            })
+            break
+          default :
+            this.studentId = this.name
+            request.get("/attendance/page",{
+              params: {
+                pageNum: this.currentPage,
+                pageSize: this.pageSize,
+                studentId: this.studentId,
+                id: this.type
+              }
+            }).then(res => {
+              this.tableData = res.records ? res.records : {}
+              this.total = res.total ? res.total : 0
+            })
         }
-      }).then(res => {
-        console.log(res.records)
-        this.tableData = res.records ? res.records : {}
-        this.total = res.total ? res.total : 0
-      })
-
+      }
     },
     reset (){
       this.studentId = ""
@@ -146,7 +196,7 @@ export default {
           if (res.code === '0'){
             this.$message({
               type: "success",
-              message: "更新成功"
+              message: "修改成功"
             })
           }else {
             this.$message({
@@ -162,7 +212,7 @@ export default {
           if (res.code === '0'){
             this.$message({
               type: "success",
-              message: "新增成功"
+              message: "添加成功"
             })
           }else {
             this.$message({

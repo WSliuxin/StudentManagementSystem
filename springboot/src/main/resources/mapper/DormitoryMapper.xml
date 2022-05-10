@@ -1,5 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.example.demo.mapper.DormitoryMapper">
+    <resultMap id="pageDormitory" type="com.example.demo.entity.Dormitory">
+        <result column="id" property="id"/>
+        <result column="nick_name" property="nickName"/>
+        <result column="name" property="name"/>
+        <result column="enable" property="enable"/>
+        <result column="phone" property="phone"/>
+        <result column="sex" property="sex"/>
+        <collection property="floors" javaType="java.util.ArrayList" ofType="com.example.demo.entity.Floor">
+            <result column="floor_name" property="floorName"/>
+        </collection>
+    </resultMap>
 
+    <select id="findPage" resultMap="pageDormitory">
+        select sys_dormitory.*,floor.* from sys_dormitory
+        left join floor
+        on sys_dormitory.id = floor.administrators
+        <where>
+            <if test="name != null and name !=''">
+                and sys_dormitory.name like concat('%', #{name},'%')
+            </if>
+        </where>
+    </select>
 </mapper>

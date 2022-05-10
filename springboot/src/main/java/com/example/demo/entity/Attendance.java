@@ -1,6 +1,7 @@
 package com.example.demo.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import java.io.Serializable;
 import java.util.Date;
@@ -41,6 +42,9 @@ public class Attendance implements Serializable {
       @ApiModelProperty("宿舍楼")
       private String floor;
 
+      @ApiModelProperty("宿舍楼id")
+      private Integer floorId;
+
       @ApiModelProperty("寝室号")
       private String bedroom;
 
@@ -50,6 +54,9 @@ public class Attendance implements Serializable {
       @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT-8")
       @ApiModelProperty("日期")
       private Date date;
+
+      @TableField(exist = false)
+      private String floorName;
 
 
 }

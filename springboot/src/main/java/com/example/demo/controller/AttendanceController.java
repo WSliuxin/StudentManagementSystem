@@ -4,7 +4,9 @@ package com.example.demo.controller;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.example.demo.entity.Floor;
 import com.example.demo.entity.Student;
+import com.example.demo.mapper.FloorMapper;
 import com.example.demo.service.IStudentService;
 import com.sun.org.apache.bcel.internal.generic.DDIV;
 import org.springframework.web.bind.annotation.*;
@@ -41,6 +43,9 @@ public class AttendanceController {
     @Resource
     private IStudentService studentService;
 
+    @Resource
+    private FloorMapper floorMapper;
+
     @PostMapping
     public Result<?> save(@RequestBody Attendance attendance) {
         // 新增
@@ -50,6 +55,7 @@ public class AttendanceController {
             Integer studentId = students.getStudentId();
             if (Objects.equals(studentId, student)){
                 attendance.setFloor(students.getFloor());
+                attendance.setFloorId(students.getFloorId());
                 attendance.setName(students.getName());
                 attendance.setBedroom(students.getBedroom().toString());
             }
@@ -90,16 +96,31 @@ public class AttendanceController {
     public Page<Attendance> findPage(@RequestParam Integer pageNum,
                                      @RequestParam Integer pageSize,
                                      @RequestParam(defaultValue = "") String studentId,
-                                     @RequestParam(defaultValue = "") String name) {
-        // 分页查询
+                                     @RequestParam(defaultValue = "") String name,
+                                     @RequestParam(defaultValue = "") String id) {
+
         QueryWrapper<Attendance> queryWrapper = new QueryWrapper<>();
+
+        if (StrUtil.isNotBlank(id)){
+            QueryWrapper<Floor> queryWrapper2 = new QueryWrapper<>();
+            queryWrapper2.eq("administrators",id);
+            List<Floor> floors = floorMapper.selectList(queryWrapper2);
+            queryWrapper.and(wrapper -> {
+                for (Floor item : floors) {
+                    String floorName = item.getFloorName();
+                    wrapper.like("floor",floorName).or();
+                }
+            });
+        }
+        // 分页查询
         if (StrUtil.isNotBlank(name)){
             queryWrapper.like("name",name);
         }
         if (StrUtil.isNotBlank(studentId)){
             queryWrapper.like("student_id",studentId);
         }
-        return attendanceService.page(new Page<>(pageNum, pageSize),queryWrapper);
+        Page<Attendance> page = attendanceService.page(new Page<>(pageNum, pageSize), queryWrapper);
+        return attendanceService.findPage(new Page<>(pageNum,pageSize),studentId,name,id);
     }
 
 }

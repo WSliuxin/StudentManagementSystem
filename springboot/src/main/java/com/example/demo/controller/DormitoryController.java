@@ -2,17 +2,15 @@ package com.example.demo.controller;
 
 
 import cn.hutool.core.util.StrUtil;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.example.demo.controller.dto.UserDTO;
-import com.example.demo.entity.User;
+import com.example.demo.controller.dto.Individual;
 import com.example.demo.mapper.DormitoryMapper;
 import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import com.example.demo.common.Result;
 import java.util.List;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import java.util.Objects;
 
 
 import com.example.demo.service.IDormitoryService;
@@ -82,11 +80,12 @@ public class DormitoryController {
                                     @RequestParam Integer pageSize,
                                     @RequestParam(defaultValue = "") String name) {
         // 分页查询
-        QueryWrapper<Dormitory> queryWrapper = new QueryWrapper<>();
-        if (StrUtil.isNotBlank(name)){
-            queryWrapper.like("name",name);
-        }
-        return dormitoryService.page(new Page<>(pageNum, pageSize),queryWrapper);
+//        QueryWrapper<Dormitory> queryWrapper = new QueryWrapper<>();
+//        if (StrUtil.isNotBlank(name)){
+//            queryWrapper.like("name",name);
+//        }
+        Page<Dormitory> page = dormitoryService.findPage(new Page<>(pageNum, pageSize), name);
+        return page;
     }
 
     /**
@@ -115,8 +114,18 @@ public class DormitoryController {
     public Result<?> login(@RequestBody Dormitory dormitory) {
         String nickName = dormitory.getNickName();
         String password = dormitory.getPassword();
-        if (StrUtil.isBlank(nickName) || StrUtil.isBlank(password)) {
-            return Result.error("-1","用户名或密码错误");
+
+        QueryWrapper<Dormitory> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("nick_name",nickName);
+        Dormitory dormitory1 = dormitoryMapper.selectOne(queryWrapper);
+        if ( dormitory1 == null ) {
+            return Result.error("-1","用户名错误");
+        } else if (!Objects.equals(password, dormitory1.getPassword())) {
+            System.out.println(dormitory1.getEnable());
+            return Result.error("-1","密码错误");
+        }
+        if ( !dormitory1.getEnable() ) {
+            return Result.error("-1","该账号无权登录，请联系管理员授权");
         }
 
         return dormitoryService.login(dormitory);
@@ -125,6 +134,24 @@ public class DormitoryController {
     @GetMapping("/username/{id}")
     public Result<?> getName(@PathVariable Integer id) {
         return Result.success(dormitoryMapper.selectById(id));
+    }
+
+    /**
+     * 修改密码接口
+     * @param
+     * @return
+     */
+    @PutMapping("/individual")
+    public Result<?> upPerson(@RequestBody Individual individual) {
+        String password = dormitoryService.getById(individual.getId()).getPassword();
+        if (password.equals(individual.getPassword())){
+            Dormitory dormitory = dormitoryService.getById(individual.getId());
+            dormitory.setPassword(individual.getNewpassword());
+            dormitoryService.updateById(dormitory);
+        }else {
+            return Result.error("-1","原密码输入错误");
+        }
+        return  Result.success();
     }
 }
 

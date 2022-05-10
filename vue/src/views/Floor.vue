@@ -12,9 +12,9 @@
     <!--    内容-->
     <el-table :data="tableData" border stripe style="width: 100%">
       <el-table-column type="index" prop="id" label="编号" width="100" />
-      <el-table-column prop="name" label="名称" width="150" />
+      <el-table-column prop="floorName" label="名称" width="150" />
       <el-table-column prop="synopsis" label="简介" />
-      <el-table-column prop="administrators" label="管理员" />
+      <el-table-column prop="adminName" label="管理员" />
       <el-table-column fixed="right" label="操作" width="300">
         <template #default="scope">
           <el-button size="mini" @click="handleEdit2(scope)">更改管理员</el-button>
@@ -45,7 +45,7 @@
             <el-input v-model="id" disabled style="width: 80%"/>
           </el-form-item>
           <el-form-item label="名称" >
-            <el-input v-model="form.name" style="width: 80%"/>
+            <el-input v-model="form.floorName" style="width: 80%"/>
           </el-form-item>
           <el-form-item label="简介" >
             <el-input v-model="form.synopsis" style="width: 80%"/>
@@ -63,7 +63,7 @@
         <el-form :model="form"  label-width="120px">
           <el-form-item label="管理员" >
             <el-select clearable v-model="form.administrators" placeholder="请选择">
-              <el-option v-for="item in options" :key="item.name" :label="item.name" :value="item.name" >
+              <el-option v-for="item in options" :key="item.name" :label="item.name" :value="item.id" >
                 {{item.name}}
               </el-option>
             </el-select>

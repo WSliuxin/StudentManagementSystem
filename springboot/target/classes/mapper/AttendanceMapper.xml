@@ -1,5 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.example.demo.mapper.AttendanceMapper">
+    <resultMap id="pageDormitory" type="com.example.demo.entity.Attendance">
+        <result column="id" property="id"/>
+        <result column="student_id" property="studentId"/>
+        <result column="name" property="name"/>
+        <result column="bedroom" property="bedroom"/>
+        <result column="content" property="content"/>
+        <result column="date" property="date"/>
+        <result column="floor_name" property="floorName"/>
+    </resultMap>
 
+    <select id="findPage" resultMap="pageDormitory">
+        SELECT floor.floor_name,attendance.*,sys_dormitory.*
+        FROM (attendance LEFT JOIN floor ON attendance.floor_id = floor.id)
+        LEFT JOIN sys_dormitory ON floor.administrators = sys_dormitory.id
+        <where>
+            <if test="id != null and id != ''">
+                and sys_dormitory.id like concat(#{id})
+            </if>
+            <if test="studentId != null and studentId != ''">
+                and attendance.student_id like concat('%', #{studentId},'%')
+            </if>
+            <if test="name != null and name != ''">
+                and attendance.name like concat('%', #{name},'%')
+            </if>
+        </where>
+    </select>
 </mapper>

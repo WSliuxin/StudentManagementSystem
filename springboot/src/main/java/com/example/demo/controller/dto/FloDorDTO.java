@@ -6,15 +6,10 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class StuDTO {
-
+public class FloDorDTO {
     private Integer id;
 
-    private String token;
-
-    private Integer studentId;
-
-    private String password;
+    private String nickName;
 
     private String name;
 
@@ -22,7 +17,10 @@ public class StuDTO {
 
     private String phone;
 
-    private String role;
+    private String floor;
 
-    private List<Menu> menus;
+    private Boolean enable;
+
+    private List<String> floors;
+
 }

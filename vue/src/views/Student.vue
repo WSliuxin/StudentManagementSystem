@@ -1,22 +1,29 @@
 <template>
-  <div style="padding: 20px;min-height: calc(100vh - 50px)">
+  <div style="padding: 20px;min-height: calc(100vh - 70px)">
 <!--    功能区域-->
-    <div style="margin: 10px 0" v-if="user.role!=='ROLE_USER'">
+    <div style="margin: 10px 0" v-if="user.role==='ROLE_ADMIN'">
       <el-button type="primary" @click="add">新增</el-button>
       <el-popconfirm style="margin-left: 5px" type="success" title="确认批量删除吗?" cancel-button-text="我再想想" @confirm="delBatch">
         <template #reference>
           <el-button type="success">批量删除</el-button>
         </template>
       </el-popconfirm>
-      <el-upload  action="http://localhost:9090/user/import" :on-success="handleExcelImportSuccess" :on-error="handleExcelImportError" :show-file-list="false" accept="xlsx" style="display: inline-block;margin-left: 12px">
+      <el-upload  action="http://localhost:9090/student/import" :on-success="handleExcelImportSuccess" :on-error="handleExcelImportError" :show-file-list="false" accept="xlsx" style="display: inline-block;margin-left: 12px">
         <el-button type="primary" >导入</el-button>
       </el-upload>
       <el-button type="primary"  style="margin-left: 12px" @click="exp" >导出</el-button>
     </div>
 <!--    搜索区域-->
     <div style="margin: 10px 0">
-      <el-input v-model="studentId" placeholder="输入学号" style="width: 20%;margin-right: 20px" clearable suffix-icon="el-icon-search"/>
-      <el-input v-model="name" placeholder="输入姓名" style="width: 20%;margin-right: 20px" clearable/>
+      <el-select v-model="value" placeholder="学号" style="width: 80px;margin-right: 10px">
+        <el-option
+            v-for="item in options2"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+        />
+      </el-select>
+      <el-input v-model="name" placeholder="输入内容" style="width: 15%;margin-right: 10px" clearable/>
       <el-button type="primary" style="margin-left: 5px" @click="load">查询</el-button>
       <el-button type="warning" style="margin-left: 5px" @click="reset">清空</el-button>
     </div>
@@ -26,12 +33,13 @@
       <el-table-column prop="studentId" label="学号" width="80" sortable />
       <el-table-column prop="name" label="姓名"  align="center "/>
       <el-table-column prop="sex" label="性别" align="center "/>
-      <el-table-column prop="floor" label="宿舍楼" align="center "/>
+      <el-table-column prop="floorName" label="宿舍楼" align="center "/>
       <el-table-column prop="bedroom" label="寝室号" align="center "/>
-      <el-table-column align="center " width="150" fixed="right" label="操作" v-if="user.role!=='ROLE_USER'">
+      <el-table-column align="center " width="300" fixed="right" label="操作" v-if="user.role!=='ROLE_USER'">
         <template #default="scope">
-          <el-button size="mini" @click="handleEdit(scope.row)" >编辑</el-button>
-          <el-popconfirm title="确认删除吗?" @confirm="handleDelete(scope.row.id)" cancel-button-text="我再想想">
+          <el-button size="mini" @click="handleEdit(scope.row)" v-if="user.role==='ROLE_ADMIN'">编辑</el-button>
+          <el-button size="mini" @click="handleEdit2(scope.row)" v-if="user.role==='ROLE_TUBES'">添加缺勤记录</el-button>
+          <el-popconfirm title="确认删除吗?" @confirm="handleDelete(scope.row.id)" cancel-button-text="我再想想" v-if="user.role==='ROLE_ADMIN'">
             <template #reference>
               <el-button size="mini" type="danger">删除</el-button>
             </template>
@@ -65,8 +73,8 @@
           </el-form-item>
           <el-form-item label="宿舍楼" >
             <el-select clearable v-model="form.floor" placeholder="请选择">
-              <el-option v-for="item in options" :key="item.name" :label="item.name" :value="item.name" >
-                {{item.name}}
+              <el-option v-for="item in options" :key="item.floorName" :label="item.floorName" :value="item.id+'_'+item.floorName" >
+                {{item.floorName}}
               </el-option>
             </el-select>
           </el-form-item>
@@ -78,6 +86,26 @@
           <span class="dialog-footer">
             <el-button @click="dialogVisible = false">取 消</el-button>
             <el-button type="primary" @click="save">确 认</el-button>
+          </span>
+        </template>
+      </el-dialog>
+
+      <el-dialog v-model="dialogVisible2" title="用户信息" width="30%">
+        <el-form :model="form"  label-width="120px">
+          <el-form-item label="日期" >
+            <el-date-picker v-model="form.date" value-format="YYYY-MM-DD" type="date" style="width: 80%;" clearable></el-date-picker>
+          </el-form-item>
+          <el-form-item label="学号" >
+            <el-input v-model="form.studentId" style="width: 80%"/>
+          </el-form-item>
+          <el-form-item label="备注" >
+            <el-input v-model="form.content" style="width: 80%"/>
+          </el-form-item>
+        </el-form>
+        <template #footer>
+          <span class="dialog-footer">
+            <el-button @click="dialogVisible2 = false">取 消</el-button>
+            <el-button type="primary" @click="edit">确 认</el-button>
           </span>
         </template>
       </el-dialog>
@@ -103,6 +131,8 @@ export default {
       dialogVisible: false,
       studentId:'',
       name:"",
+      sex:"",
+      floor:"",
       currentPage: 1,
       pageSize: 10,
       total: 0,
@@ -110,7 +140,28 @@ export default {
       row: '/0',
       multipleTableRef: [],
       options: {},
-      user: JSON.parse(localStorage.getItem("user")) ? JSON.parse(localStorage.getItem("user")): {}
+      user: JSON.parse(localStorage.getItem("user")) ? JSON.parse(localStorage.getItem("user")): {},
+      dialogVisible2: false,
+      value:"",
+      options2 : [
+        {
+          value: '学号',
+          label: '学号',
+        },
+        {
+          value: '姓名',
+          label: '姓名',
+        },
+        {
+          value: '性别',
+          label: '性别',
+        },
+        {
+          value: '宿舍楼',
+          label: '宿舍楼',
+        },
+      ],
+      type: "",
     }
   },
   created() {
@@ -124,23 +175,72 @@ export default {
       this.form.cover = res.data
     },
     load(){ //页面刷新
-      request.get("/student/page",{
-        params: {
-          pageNum: this.currentPage,
-          pageSize: this.pageSize,
-          studentId: this.studentId,
-          name: this.name,
-        }
-      }).then(res => {
-        console.log(res.records)
-        this.tableData = res.records ? res.records : {}
-        this.total = res.total ? res.total : 0
-      })
+      if (this.user.role==="ROLE_TUBES"){
+          this.type = this.user.id
+      }
+      switch (this.value) {
+        case "姓名" :
+          request.get("/student/page",{
+            params: {
+              pageNum: this.currentPage,
+              pageSize: this.pageSize,
+              name: this.name,
+              id: this.type
+            }
+          }).then(res => {
+            this.tableData = res.records ? res.records : {}
+            this.total = res.total ? res.total : 0
+          });
+          break
+        case "性别" :
+          this.sex = this.name
+          request.get("/student/page",{
+            params: {
+              pageNum: this.currentPage,
+              pageSize: this.pageSize,
+              sex: this.sex,
+              id: this.type
+            }
+          }).then(res => {
+            this.tableData = res.records ? res.records : {}
+            this.total = res.total ? res.total : 0
+          })
+          break
+        case "宿舍楼" :
+          this.floor = this.name
+          request.get("/student/page",{
+            params: {
+              pageNum: this.currentPage,
+              pageSize: this.pageSize,
+              floor: this.floor,
+              id: this.type
+            }
+          }).then(res => {
+            this.tableData = res.records ? res.records : {}
+            this.total = res.total ? res.total : 0
+          })
+          break
+        default :
+          this.studentId = this.name
+          request.get("/student/page",{
+            params: {
+              pageNum: this.currentPage,
+              pageSize: this.pageSize,
+              studentId: this.studentId,
+              id: this.type
+            }
+          }).then(res => {
+            this.tableData = res.records ? res.records : {}
+            this.total = res.total ? res.total : 0
+          })
+          break
+      }
 
     },
     reset (){
       this.studentId = ""
       this.name = ""
+      this.value = ""
       this.load()
     },
     add(){ //新增弹出添加框
@@ -245,6 +345,27 @@ export default {
       let a=axios.interceptors.response.use()
       this.$message.error("导入失败")
       this.load()
+    },
+    handleEdit2(row) {
+      this.form = JSON.parse(JSON.stringify(row))
+      this.dialogVisible2 = true
+    },
+    edit() {
+      request.post( "/attendance",this.form).then(res => {
+        if (res.code === '0'){
+          this.$message({
+            type: "success",
+            message: "添加成功"
+          })
+        }else {
+          this.$message({
+            type: "error",
+            message: res.msg
+          })
+        }
+      })
+      this.load()//刷新表格
+      this.dialogVisible2 = false
     }
   }
 }

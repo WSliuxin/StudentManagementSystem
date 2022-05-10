@@ -1,5 +1,5 @@
 <template>
-  <div style="padding: 20px;min-height: calc(100vh - 50px)">
+  <div style="padding: 20px;min-height: calc(100vh - 70px)">
 <!--    功能区域-->
     <div style="margin: 10px 0">
       <el-button type="primary" @click="add">新增</el-button>
@@ -16,7 +16,11 @@
       <el-table-column prop="name" label="姓名"  align="center "/>
       <el-table-column prop="sex" label="性别" align="center "/>
       <el-table-column prop="phone" label="联想电话" align="center "/>
-      <el-table-column prop="floor" label="宿舍楼" align="center "/>
+      <el-table-column prop="floor" label="宿舍楼" align="center ">
+        <template #default="scope">
+          <el-button size="mini" type="primary" @click="look(scope.row.floors)">查看管理楼号</el-button>
+        </template>
+      </el-table-column>
       <el-table-column prop="nickName" label="用户名" align="center "/>
       <el-table-column prop="enable" label="启用" >
         <template #default="scope">
@@ -69,6 +73,12 @@
           </span>
         </template>
       </el-dialog>
+
+      <el-dialog v-model="vis" title="楼栋信息" width="20%">
+        <el-table :data="floors" border stripe >
+          <el-table-column prop="floorName" label="楼栋名称" align="center " sortable></el-table-column>
+        </el-table>
+      </el-dialog>
     </div>
   </div>
 </template>
@@ -97,12 +107,18 @@ export default {
       tableData:[],
       row: '/0',
       multipleTableRef: [],
+      floors:[],
+      vis: false,
     }
   },
   created() {
     this.load()
   },
   methods: {
+    look(floors) {
+      this.floors = floors
+      this.vis = true
+    },
     exp() {
       window.open("http://localhost:9090/student/export")
     },

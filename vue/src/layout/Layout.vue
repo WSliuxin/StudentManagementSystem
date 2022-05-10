@@ -1,13 +1,18 @@
 <template>
   <div>
-    <!--    头部-->
-    <Header :user="user" />
+
     <!--    主体-->
     <div style="display: flex">
       <!--      侧边栏-->
       <Aside />
-      <!--      内容区域-->
-      <router-view style="flex: 1" @refreshUser="getUser" :user="user"/>
+      <div style="width: 100%;">
+        <!--    头部-->
+        <Header :user="user" />
+        <!--      内容区域-->
+        <router-view style="flex: 1" @refreshUser="getUser" :user="user"/>
+      </div>
+
+
     </div>
   </div>
 </template>
@@ -37,9 +42,9 @@ export default {
       let list = JSON.parse(localStorage.getItem("user")) ? JSON.parse(localStorage.getItem("user")) : ""
       switch (list.role) {
         case "ROLE_ADMIN" :
-          request.get("/user/username/" + id).then(res => {
+          request.get("/user/" + id).then(res => {
             this.user = res.data
-            this.user.nickName = this.user.name
+            this.user.nickName = this.user.username
           })
               break
         case "ROLE_USER":

@@ -24,5 +24,9 @@ public class StuDTO {
 
     private String role;
 
+    private String floorName;
+
+    private Integer bedroom;
+
     private List<Menu> menus;
 }

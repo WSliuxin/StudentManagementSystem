@@ -72,7 +72,6 @@ setRoutes()
 router.beforeEach((to,form,next) => {
 
   const storeMenus = localStorage.getItem("menus")
-  console.log("222222222222222222")
   if (!to.matched.length) {
     if (storeMenus) {
       next('/404')

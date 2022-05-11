@@ -7,7 +7,8 @@ spring:
         username: root
         password: 123456
     jackson:
-        date-format: yyyy-MM-dd
+        date-format: yyyy-MM-dd HH:mm
+        time-zone: GMT+8
 
 logging:
     level:

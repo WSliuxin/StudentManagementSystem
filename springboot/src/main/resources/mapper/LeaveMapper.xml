@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.mapper.LeaveMapper">
+    <resultMap id="pageDormitory" type="com.example.demo.entity.Leave">
+        <result column="leave_id" property="leaveId"/>
+        <result column="student_id" property="studentId"/>
+        <result column="name" property="name"/>
+        <result column="start_time" property="startTime"/>
+        <result column="end_time" property="endTime"/>
+        <result column="bedroom" property="bedroom"/>
+        <result column="floor_name" property="floorName"/>
+        <result column="approver" property="approver"/>
+        <result column="state" property="state"/>
+
+    </resultMap>
+
+    <select id="findPage" resultMap="pageDormitory">
+        SELECT sys_student.student_id,sys_student.`name`,sys_leave.*,sys_student.bedroom,floor.floor_name
+        FROM (sys_leave LEFT JOIN sys_student ON sys_leave.student_id = sys_student.student_id)
+        LEFT JOIN floor ON sys_student.floor_id = floor.id
+        <where>
+            <if test="role != null and role !='' and role == 'ROLE_USER'">
+                <if test="id != null and id !=''">
+                    and sys_leave.student_id like concat(#{id})
+                </if>
+            </if>
+            <if test="role != null and role !='' and role == 'ROLE_TUBES'">
+                <if test="id != null and id !=''">
+                    and sys_leave.approver like concat(#{id})
+                </if>
+            </if>
+            <if test="studentId != null and studentId != ''">
+                and sys_student.student_id like concat('%', #{studentId},'%')
+            </if>
+            <if test="name != null and name != ''">
+                and sys_student.name like concat('%', #{name},'%')
+            </if>
+            <if test="floor != null and floor != ''">
+                and floor.floor_name like concat('%', #{floor},'%')
+            </if>
+        </where>
+    </select>
+</mapper>

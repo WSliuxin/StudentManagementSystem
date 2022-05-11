@@ -7,8 +7,10 @@ import com.example.demo.common.Result;
 import com.example.demo.controller.dto.DorDTO;
 import com.example.demo.controller.dto.StuDTO;
 import com.example.demo.entity.Dormitory;
+import com.example.demo.entity.Floor;
 import com.example.demo.entity.Menu;
 import com.example.demo.entity.Student;
+import com.example.demo.mapper.FloorMapper;
 import com.example.demo.mapper.RoleMapper;
 import com.example.demo.mapper.RoleMenuMapper;
 import com.example.demo.mapper.StudentMapper;
@@ -45,6 +47,9 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
     @Resource
     StudentMapper studentMapper;
 
+    @Resource
+    FloorMapper floorMapper;
+
     @Override
     public Result<?> login(Student student) {
         QueryWrapper<Student> queryWrapper = new QueryWrapper<>();
@@ -77,6 +82,11 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
         stuDTO.setStudentId(res.getStudentId());
         stuDTO.setRole(res.getRole());
         stuDTO.setSex(res.getSex());
+
+        Floor floor = floorMapper.selectById(res.getFloorId());
+        stuDTO.setFloorName(floor.getFloorName());
+
+        stuDTO.setBedroom(res.getBedroom());
 
 
         //Token
